@@ -1,9 +1,7 @@
 body{
     background-color: #f9fbec;
     color: #008080;
-    margin-top: 75px;
-    margin-left: 250px;
-    margin-right: 250px;
+    margin: 14%;
 }
 
 .header-container{
@@ -14,6 +12,7 @@ body{
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
 }
 
 .social-links{
@@ -25,6 +24,17 @@ body{
 
 .social-link :hover{
     fill: #838b8b
+}
+
+@media (max-width: 767px) and (orientation: portrait){
+    .header-container{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .social-links{
+        margin-top: 20px;
+    }
 }
 
 .user-info{
