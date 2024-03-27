@@ -1,0 +1,40 @@
+body{
+    background-color: #f9fbec;
+    color: #008080;
+    margin-top: 75px;
+    margin-left: 250px;
+    margin-right: 250px;
+}
+
+.header-container{
+    font-family: "Roboto Mono", monospace;
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-size: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.social-links{
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-link :hover{
+    fill: #838b8b
+}
+
+.user-info{
+    font-family: "Roboto Mono", monospace;
+    font-optical-sizing: auto;
+    font-size: 24px;
+    font-style: normal;
+    justify-content: center;
+}
+
+p{
+    font-size: 18px;
+}
