@@ -1,7 +1,10 @@
 body{
     background-color: #f9fbec;
     color: #008080;
-    margin: 14%;
+    margin-left: 14%;
+    margin-right: 14%;
+    margin-top: 5%;
+
 }
 
 .header-container{
