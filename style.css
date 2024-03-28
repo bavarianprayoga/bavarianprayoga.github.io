@@ -35,12 +35,16 @@ body.dark-mode{
     transition: fill 0.5s ease;
 }
 
-body.dark-mode .social-links svg path{
+body.dark-mode .social-links svg{
     fill: #f9fbec;
 }
 
 .social-link :hover{
     fill: #838b8b
+}
+
+body.dark-mode .social-links :hover{
+    fill: #ce7367;
 }
 
 @media (max-width: 767px) and (orientation: portrait){
