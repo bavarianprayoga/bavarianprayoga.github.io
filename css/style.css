@@ -1,16 +1,16 @@
 @font-face{
     font-family: rubik-light;
-    src: url(/assets/fonts/Rubik-Light.ttf);
+    src: url(../assets/fonts/Rubik-Light.ttf);
 }
 
 @font-face{
     font-family: rubik-heavy;
-    src: url(/assets/fonts/Rubik-Bold.ttf);
+    src: url(../assets/fonts/Rubik-Bold.ttf);
 }
 
 @font-face{
     font-family: rubik-heavy-italic;
-    src: url(/assets/fonts/Rubik-BoldItalic.ttf);
+    src: url(../assets/fonts/Rubik-BoldItalic.ttf);
 }
 
 /* idk what to call */
