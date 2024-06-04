@@ -1,0 +1,131 @@
+@font-face {
+    font-family: GeistMono-Regular;
+    src: url(misc/geistmonostatic/GeistMono-Medium.ttf);
+}
+
+@font-face {
+    font-family: GeistMono-Light;
+    src: url(misc/geistmonostatic/GeistMono-Light.ttf);
+}
+
+body{
+    background-color: #f9fbec;
+    color: #008080;
+    margin-left: 14%;
+    margin-right: 14%;
+    margin-top: 5%;
+    margin-bottom: 8%;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+body.dark-mode{
+    background-color: #373d51;
+    color: #f9fbec;
+}
+
+.header-container{
+    font-family: "GeistMono-Regular";
+    font-size: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.social-links{
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-links svg path{
+    transition: fill 0.5s ease;
+}
+
+body.dark-mode .social-links svg{
+    fill: #f9fbec;
+}
+
+.social-link :hover{
+    fill: #838b8b
+}
+
+body.dark-mode .social-links :hover{
+    fill: #ce7367;
+}
+
+@media (max-width: 767px) and (orientation: portrait){
+    .header-container{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .social-links{
+        margin-top: 20px;
+    }
+}
+
+.user-info{
+    font-family: "GeistMono-Light";
+    font-size: 24px;
+    justify-content: center;
+}
+
+p{
+    font-size: 18px;
+}
+
+.switch{
+    display: block;
+    --width-of-switch: 3.5em;
+    --height-of-switch: 2em;
+    --size-of-icon: 1.4em;
+    --slider-offset: 0.3em;
+    position: fixed;
+    bottom: 4%;
+    right: 3%;
+    width: var(--width-of-switch);
+    height: var(--height-of-switch);
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e0e0da;
+    transition: .3s;
+    border-radius: 30px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: var(--size-of-icon,1.4em);
+    width: var(--size-of-icon,1.4em);
+    border-radius: 20px;
+    left: var(--slider-offset,0.3em);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #008080;
+    transition: .3s;
+}
+
+input:checked + .slider {
+    background-color:#222222;
+}
+
+input:checked + .slider:before {
+    left: calc(100% - (var(--size-of-icon,1.4em) + var(--slider-offset,0.3em)));
+    background:#222222;
+    box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -4px 0 0 #F6F1D5 ;
+}
