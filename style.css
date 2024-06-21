@@ -20,9 +20,7 @@ body.dark-mode{
     color: #f9fbec;
 }
 
-* {
-    border: 1px solid red;
-}
+/* * {border: 1px solid red;} */
 
 .header-container{
     font-family: "GeistMono-Regular";
