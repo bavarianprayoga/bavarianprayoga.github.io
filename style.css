@@ -31,6 +31,15 @@ body.dark-mode{
     width: 100%;
 }
 
+.social-link:hover{
+    fill: #838b8b;
+    transform: scale(1.2);
+}
+
+.social-link{
+    transition: transform 0.2s ease;
+}
+
 .social-links{
     display: flex;
     gap: 2rem;
@@ -44,10 +53,6 @@ body.dark-mode{
 
 body.dark-mode .social-links svg{
     fill: #f9fbec;
-}
-
-.social-link :hover{
-    fill: #838b8b
 }
 
 body.dark-mode .social-links :hover{
@@ -65,7 +70,7 @@ body.dark-mode .social-links :hover{
     }
 
     .social-links{
-        margin-top: 20px;
+        margin-top: 1.2rem;
     }
 }
 
@@ -86,8 +91,8 @@ p{
     --slider-offset: 0.3em;
     display: block;
     position: fixed;
-    bottom: 4%;
-    right: 3%;
+    bottom: 1.5rem;
+    right: 1.5rem;
     width: var(--width-of-switch);
     height: var(--height-of-switch);
 }
@@ -115,7 +120,7 @@ p{
     content: "";
     height: var(--size-of-icon,1.4em);
     width: var(--size-of-icon,1.4em);
-    border-radius: 20px;
+    border-radius: 1.2rem;
     left: var(--slider-offset,0.3em);
     top: 50%;
     transform: translateY(-50%);
