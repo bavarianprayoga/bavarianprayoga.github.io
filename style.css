@@ -1,29 +1,26 @@
 @font-face {
-    font-family: GeistMono-Regular;
-    src: url(misc/geistmonostatic/GeistMono-Medium.ttf);
+    font-family: Satoshi-Light;
+    src: url(misc/fonts/Satoshi-Light.otf);
 }
 
 @font-face {
-    font-family: GeistMono-Light;
-    src: url(misc/geistmonostatic/GeistMono-Light.ttf);
+    font-family: British-Green;
+    src: url(misc/fonts/British-Green.otf);
 }
 
 body{
-    background-color: #f9fbec;
-    color: #008080;
+    /* background-color: #f9fbec; */
+    background-color: #10100E;
+    /* color: #008080; */
+    color: #FFFFE3;
     margin: 5rem 10rem;
     transition: background-color 0.5s ease, color 0.5s ease;
-}
-
-body.dark-mode{
-    background-color: #373d51;
-    color: #f9fbec;
 }
 
 /* * {border: 1px solid red;} */
 
 .header-container{
-    font-family: "GeistMono-Regular";
+    font-family: "British-Green";
     font-size: 2rem;
     display: flex;
     justify-content: space-between;
@@ -51,14 +48,6 @@ body.dark-mode{
     transition: fill 0.5s ease;
 }
 
-body.dark-mode .social-links svg{
-    fill: #f9fbec;
-}
-
-body.dark-mode .social-links :hover{
-    fill: #ce7367;
-}
-
 @media (max-width: 810px){
     body{
         margin: 2rem 1rem;
@@ -75,65 +64,11 @@ body.dark-mode .social-links :hover{
 }
 
 .user-info{
-    font-family: "GeistMono-Light";
+    font-family: "Satoshi-Light";
     font-size: 1.5rem;
     justify-content: center;
 }
 
 p{
     font-size: 1.2rem;
-}
-
-.switch{
-    --width-of-switch: 3.5em;
-    --height-of-switch: 2em;
-    --size-of-icon: 1.4em;
-    --slider-offset: 0.3em;
-    display: block;
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    width: var(--width-of-switch);
-    height: var(--height-of-switch);
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #e0e0da;
-    transition: .3s;
-    border-radius: 2rem;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: var(--size-of-icon,1.4em);
-    width: var(--size-of-icon,1.4em);
-    border-radius: 1.2rem;
-    left: var(--slider-offset,0.3em);
-    top: 50%;
-    transform: translateY(-50%);
-    background: #008080;
-    transition: .3s;
-}
-
-input:checked + .slider {
-    background-color:#222222;
-}
-
-input:checked + .slider:before {
-    left: calc(100% - (var(--size-of-icon,1.4em) + var(--slider-offset,0.3em)));
-    background:#222222;
-    box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -4px 0 0 #F6F1D5 ;
 }
