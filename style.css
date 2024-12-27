@@ -17,6 +17,12 @@ body{
     transition: background-color 0.5s ease, color 0.5s ease;
 }
 
+.user-info a:link,
+.user-info a:visited {
+    color: #FFFFE3; 
+    text-decoration: underline;
+}
+
 /* * {border: 1px solid red;} */
 
 .header-container{
