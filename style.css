@@ -78,3 +78,41 @@ body{
 p{
     font-size: 1.2rem;
 }
+
+li {
+    font-size: 1rem;
+}
+
+.experience-dropdown {
+    margin-bottom: 1rem;
+}
+
+.experience-dropdown summary {
+    cursor: pointer;
+    outline: none;
+}
+
+.experience-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.proof-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 1rem;
+}
+
+details[open] > *:not(summary) {
+    animation: sweep 0.5s ease-in-out;
+}
+
+@keyframes sweep {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
