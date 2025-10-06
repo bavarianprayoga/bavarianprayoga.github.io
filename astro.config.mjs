@@ -5,9 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://bavarianprayoga.github.io',
   vite: {
     plugins: [tailwindcss()]
   },
-  site: 'https://bavarianprayoga.github.io',
-  base: '/bavarianprayoga.github.io/',
 });
