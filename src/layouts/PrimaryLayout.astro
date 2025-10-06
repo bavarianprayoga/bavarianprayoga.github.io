@@ -1,0 +1,41 @@
+---
+import Navigation from '../components/Navigation.astro';
+import ArtPanel from '../components/ArtPanel.astro';
+import '../styles/global.css';  
+
+const title = 'Bavarian Prayoga';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/images/bp-light.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<main>
+			<slot />
+		</main>
+        <Navigation />
+	</body>
+</html>
+
+<style>
+	body {
+		display: grid;
+		grid-template-columns: 2fr 1fr;
+		min-height: 100vh;
+		background-color: var(--clr-nav-body);
+	}
+
+    main {
+        background-color: var(--clr-content-body);
+		margin: 1.5rem;
+        height: calc(100vh - 1.5rem * 2); /* Subtracting the vertical margins */
+		overflow-y: auto;
+		border-radius: 8px;
+    }
+
+</style>

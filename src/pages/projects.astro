@@ -1,0 +1,125 @@
+---
+import PrimaryLayout from '../layouts/PrimaryLayout.astro';
+
+const projects = [
+    {
+        title: 'Currency Forecast',
+        description: 'End-to-end time-series forecasting app to predict currency exchange rates, featuring a resilient data pipeline and an optimized LightGBM model.',
+        tech: ['Python', 'Streamlit', 'API Integration', 'LightGBM'],
+        link: 'https://github.com/bavarianprayoga/currencyforecast'
+    },
+    {
+        title: 'Fashion Recommendation',
+        description: 'A visual search Streamlit application to recommend clothing items based on real-time camera input or image uploads, using deep learning for feature extraction.',
+        tech: ['Python', 'Streamlit', 'TensorFlow/Keras', 'OpenCV', 'MobileNetV3'],
+        link: 'https://github.com/bavarianprayoga/skefits'
+    },
+    {
+        title: 'Rendezvous',
+        description: 'A full-stack social web app for discovering hangout spots and planning group events, from initial UX research in Figma to prototyping.',
+        tech: ['Next.js', 'React', 'Typescript', 'Tailwind', 'Appwrite', 'Figma'],
+        link: 'https://github.com/bavarianprayoga/rendezvous'
+    },
+    {
+        title: 'Personal Portfolio',
+        description: 'The very site you are on. Designed and built from scratch to showcase my skills and projects in a clean, minimalist, and performant package.',
+        tech: ['Astro', 'CSS', 'JavaScript'],
+        link: 'https://github.com/bavarianprayoga/bavarianprayoga.github.io'
+    },
+];
+---
+
+<PrimaryLayout>
+    <div class="content">
+        <h1>Projects</h1>
+        <p class="subtitle">A selection of projects I've worked on.</p>
+
+        <div class="project-list">
+            {projects.map(project => (
+                <article class="project-card">
+                    <div class="card-header">
+                        <h3><a href={project.link} target={project.link.startsWith('http') ? '_blank' : '_self'}>{project.title}</a></h3>
+                    </div>
+                    <p>{project.description}</p>
+                    <ul class="tech-list" role="list">
+                        {project.tech.map(tech => <li>{tech}</li>)}
+                    </ul>
+                </article>
+            ))}
+        </div>
+    </div>
+</PrimaryLayout>
+
+<style>
+    h1 {
+        font-size: 3rem;
+        font-weight: var(--fw-medium);
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+        color: var(--clr-neutral-300);
+        margin-top: 0.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .project-list {
+        display: grid;
+        gap: 2rem;
+    }
+
+    .project-card {
+        position: relative;
+        background-color: var(--clr-neutral-900);
+        border: 1px solid var(--clr-neutral-600);
+        padding: 1.5rem;
+        border-radius: 8px;
+        transition: border-color 0.2s ease;
+    }
+
+    .project-card:hover {
+        border-color: var(--clr-neutral-300);
+    }
+
+    .project-card h3 {
+        font-size: 1.5rem;
+        font-weight: var(--fw-semibold);
+        margin-bottom: 1rem;
+    }
+
+    .project-card h3 a {
+        text-decoration: none;
+        color: var(--clr-neutral-100);
+    }
+    
+    .project-card h3 a::after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .project-card p {
+        color: var(--clr-neutral-200);
+        line-height: 1.6;
+    }
+
+    .tech-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        padding: 0;
+    }
+
+    .tech-list li {
+        background-color: var(--clr-neutral-600);
+        color: var(--clr-neutral-100);
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+    }
+</style>

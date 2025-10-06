@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: 'Manrope';
+    src: url('/fonts/Manrope-VariableFont_wght.ttf') format('truetype-variations');
+    font-weight: 200 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'British Green';
+    src: url('/fonts/British-Green.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --clr-neutral-100: #FFFFE3;
+    --clr-neutral-200: #D4D9A7;
+    --clr-neutral-300: #A2A87B;
+    --clr-neutral-600: #54590E;
+    --clr-neutral-900: #10100E;
+
+    --clr-nav-body: var(--clr-neutral-100);
+    --clr-nav-font: var(--clr-neutral-900);
+
+    --clr-content-body: var(--clr-neutral-900);
+    --clr-content-font: var(--clr-neutral-100);
+
+    --ff-base: 'Manrope', sans-serif;
+    --ff-display: 'British Green', serif;
+    
+    --fw-light: 300;
+    --fw-normal: 400;
+    --fw-medium: 500;
+    --fw-semibold: 700;
+    --fw-bold: 800;
+
+    --content-margin: 1.5rem;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+*::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* * { border: 1px solid red; } */
+
+h1,
+h2,
+h3,
+h4,
+p {
+    margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-weight: var(--fw-bold);
+    line-height: 1.1;
+    text-wrap: balance;
+}
+
+p,
+li {
+    text-wrap: pretty;
+    max-width: 75ch;
+    text-align: justify;
+}
+
+[role="list"] {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+    border-radius: 8px;
+}
+
+body {
+    margin: 0;
+    color: var(--clr-content-body);
+    font-family: var(--ff-base);
+    line-height: 1.6;
+}
+
+.visually-hidden {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.content {
+        padding: 2rem;
+        color: var(--clr-content-font);
+}
+
+.title {
+    font-family: var(--ff-display);
+    font-size: 5rem;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+}
