@@ -1,1 +1,1 @@
-proses menjadi penguasa dunia
+yuhuhuuuuu

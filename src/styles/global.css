@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@import "@fontsource/lilex/200.css";
+@import "@fontsource/lilex/300.css";
+@import "@fontsource/lilex/400.css";
+@import "@fontsource/lilex/500.css";
+@import "@fontsource/lilex/600.css";
+@import "@fontsource/lilex/700.css";
+
+:root {
+    --font-color: #FFFFE3;
+    --bg-color: #10100E;
+}
+
+@layer base {
+  body {
+    font-family: "Lilex", ui-monospace, monospace;
+    background-color: var(--bg-color);
+    color: var(--font-color);
+  }
+}
+
+/* bg #10100E main clor FFFFE3 */
+
+/** {border: 1px solid red;}*/
