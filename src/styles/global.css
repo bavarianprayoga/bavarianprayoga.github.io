@@ -19,6 +19,16 @@
   }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+#page-content {
+  opacity: 0;
+  animation: fadeIn 1.0s ease-out 0.3s forwards;
+}
+
 /* bg #10100E main clor FFFFE3 */
 
 /** {border: 1px solid red;}*/
