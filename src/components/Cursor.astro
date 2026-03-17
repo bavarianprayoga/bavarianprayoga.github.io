@@ -1,0 +1,97 @@
+---
+---
+
+<div class="cursor" id="cursor"></div>
+
+<style>
+  .cursor {
+    border-radius: 50px;
+    width: 12px;
+    height: 12px;
+    border: solid 1px var(--bg-color);
+    box-sizing: border-box;
+    position: fixed;
+    top: 50%;
+    left: 10%;
+    transform: translate(-50%, -50%) rotate(0deg);
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference;
+    background-color: var(--font-color);
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+
+  const element = document.querySelector(".cursor");
+  
+  class Cursor {
+    el: Element;
+    
+    constructor(el: Element) {
+      this.el = el;
+      this.bind();
+    }
+
+    bind() {
+      document.addEventListener("mousemove", this.move.bind(this), false);
+    }
+
+    move(e: MouseEvent) {
+      const cursorPosition = {
+        left: e.clientX,
+        top: e.clientY
+      };
+      
+      let isHoveringTarget = false;
+      const triggerDistance = 50; // Configurable trigger distance
+      const hoverSize = 65; // The fixed size of the cursor when attached
+
+      const links = document.querySelectorAll("a");
+      for (const single of links) {
+        const rect = single.getBoundingClientRect();
+        
+        const targetPosition = {
+          left: rect.left + rect.width / 2,
+          top: rect.top + rect.height / 2
+        };
+        const distance = {
+          x: targetPosition.left - cursorPosition.left,
+          y: targetPosition.top - cursorPosition.top
+        };
+
+        const angle = Math.atan2(distance.x, distance.y);
+        const hypotenuse = Math.sqrt(
+          distance.x * distance.x + distance.y * distance.y
+        );
+        
+        if (hypotenuse < triggerDistance) {
+          isHoveringTarget = true;
+          gsap.to(this.el, {
+            duration: 0.2,
+            left: targetPosition.left - (Math.sin(angle) * hypotenuse) / 2,
+            top: targetPosition.top - (Math.cos(angle) * hypotenuse) / 2,
+            height: hoverSize,
+            width: hoverSize
+          });
+          break; // Stop checking other links once we're attached to one
+        }
+      }
+
+      if (!isHoveringTarget) {
+        gsap.to(this.el, {
+          duration: 0.2,
+          left: cursorPosition.left,
+          top: cursorPosition.top,
+          height: 12,
+          width: 12
+        });
+      }
+    }
+  }
+  
+  if (element) {
+    new Cursor(element);
+  }
+</script>

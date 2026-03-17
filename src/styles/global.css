@@ -26,7 +26,7 @@
 
 #page-content {
   opacity: 0;
-  animation: fadeIn 1.0s ease-out 0.3s forwards;
+  animation: fadeIn 1.0s ease-out 0.5s forwards;
 }
 
 /* bg #10100E main clor FFFFE3 */
