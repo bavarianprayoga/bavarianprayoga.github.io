@@ -3,10 +3,14 @@
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
+import cloudflare from "@astrojs/cloudflare";
+
 // https://astro.build/config
 export default defineConfig({
-	vite: {
+    vite: {
 		plugins: [tailwindcss()],
     },
-    site: 'https://bavarianprayoga.github.io'
+
+    site: 'https://bavarianprayoga.github.io',
+    adapter: cloudflare()
 });
