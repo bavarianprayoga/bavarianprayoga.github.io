@@ -91,7 +91,11 @@
     }
   }
   
-  if (element) {
+  const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+
+  if (element && !isTouchDevice) {
     new Cursor(element);
+  } else if (element) {
+    (element as HTMLElement).style.display = 'none';
   }
 </script>
