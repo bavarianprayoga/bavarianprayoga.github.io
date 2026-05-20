@@ -8,7 +8,7 @@
     border-radius: 50px;
     width: 12px;
     height: 12px;
-    border: solid 1px var(--bg-color);
+    border: 1px solid #FFFFE3;
     box-sizing: border-box;
     position: fixed;
     top: 50%;
@@ -17,9 +17,11 @@
     pointer-events: none;
     z-index: 9999;
     mix-blend-mode: difference;
-    background-color: var(--font-color);
+    background-color: #FFFFE3;
+    transition: width 0.05s ease, height 0.05s ease;
   }
 </style>
+
 
 <script>
   import { gsap } from "gsap";
@@ -28,6 +30,7 @@
   
   class Cursor {
     el: Element;
+    currentTarget: Element | null = null;
     
     constructor(el: Element) {
       this.el = el;
@@ -48,7 +51,8 @@
       const triggerDistance = 50; // Configurable trigger distance
       const hoverSize = 65; // The fixed size of the cursor when attached
 
-      const links = document.querySelectorAll("a");
+      const links = document.querySelectorAll("a, button");
+      let hoveredLink: Element | null = null;
       for (const single of links) {
         const rect = single.getBoundingClientRect();
         
@@ -68,6 +72,7 @@
         
         if (hypotenuse < triggerDistance) {
           isHoveringTarget = true;
+          hoveredLink = single;
           gsap.to(this.el, {
             duration: 0.2,
             left: targetPosition.left - (Math.sin(angle) * hypotenuse) / 2,
@@ -77,6 +82,16 @@
           });
           break; // Stop checking other links once we're attached to one
         }
+      }
+
+      if (hoveredLink !== this.currentTarget) {
+        if (this.currentTarget) {
+          this.currentTarget.classList.remove('cursor-hover');
+        }
+        if (hoveredLink) {
+          hoveredLink.classList.add('cursor-hover');
+        }
+        this.currentTarget = hoveredLink;
       }
 
       if (!isHoveringTarget) {

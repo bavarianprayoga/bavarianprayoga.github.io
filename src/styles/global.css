@@ -9,6 +9,19 @@
 :root {
     --font-color: #FFFFE3;
     --bg-color: #10100E;
+    --grid-color-1: rgba(255, 255, 227, 0.015);
+    --grid-color-2: rgba(255, 255, 227, 0.04);
+    --grid-color-3: rgba(255, 255, 227, 0.08);
+    --overlay-start: rgba(16, 16, 14, 0.12);
+}
+
+[data-theme="light"] {
+    --font-color: #10100E;
+    --bg-color: #FFFFE3;
+    --grid-color-1: rgba(16, 16, 14, 0.015);
+    --grid-color-2: rgba(16, 16, 14, 0.04);
+    --grid-color-3: rgba(16, 16, 14, 0.08);
+    --overlay-start: rgba(255, 255, 227, 0.12);
 }
 
 @layer base {
@@ -17,6 +30,12 @@
     background-color: var(--bg-color);
     color: var(--font-color);
     overflow-x: clip;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  body::before,
+  body::after {
+    transition: background-color 0.5s ease, opacity 0.5s ease;
   }
 
   body::before,
@@ -34,17 +53,17 @@
 
     background-color: var(--bg-color);
     background-image:
-      linear-gradient(rgba(255, 255, 227, 0.015) 0 1px, transparent 1px var(--grid-gap)),
-      linear-gradient(to right, rgba(255, 255, 227, 0.015) 0 1px, transparent 1px var(--grid-gap)),
-      linear-gradient(rgba(255, 255, 227, 0.04) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
-      linear-gradient(to right, rgba(255, 255, 227, 0.04) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
+      linear-gradient(var(--grid-color-1) 0 1px, transparent 1px var(--grid-gap)),
+      linear-gradient(to right, var(--grid-color-1) 0 1px, transparent 1px var(--grid-gap)),
+      linear-gradient(var(--grid-color-2) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
+      linear-gradient(to right, var(--grid-color-2) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
       radial-gradient(
         circle at center,
         transparent calc(var(--grid-gap) / 2),
         var(--paper-bg) calc(var(--grid-gap) / 2) 100%
       ),
-      linear-gradient(rgba(255, 255, 227, 0.08) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
-      linear-gradient(to right, rgba(255, 255, 227, 0.08) 0 1px, transparent 1px calc(var(--grid-gap) * 5));
+      linear-gradient(var(--grid-color-3) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
+      linear-gradient(to right, var(--grid-color-3) 0 1px, transparent 1px calc(var(--grid-gap) * 5));
     background-size:
       var(--grid-gap) var(--grid-gap),
       var(--grid-gap) var(--grid-gap),
@@ -66,7 +85,7 @@
   body::after {
     background: linear-gradient(
       to bottom,
-      rgba(16, 16, 14, 0.12),
+      var(--overlay-start),
       var(--bg-color) 90%
     );
   }
@@ -80,6 +99,10 @@
 #page-content {
   opacity: 0;
   animation: fadeIn 1.0s ease-out 0.5s forwards;
+}
+
+a {
+  transition: color 0.3s ease;
 }
 
 /* bg #10100E main clor FFFFE3 */
