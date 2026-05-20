@@ -8,5 +8,5 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss()],
     },
-    site: 'https://bavarianprayoga.github.io'
+    site: 'https://bavarianprayoga.dev'
 });
