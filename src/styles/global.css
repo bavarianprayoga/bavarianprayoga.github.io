@@ -40,6 +40,7 @@
     inset: -8rem;
     z-index: 0;
     pointer-events: none;
+    transition: opacity 0.5s ease;
   }
 
   body::before {
@@ -83,6 +84,15 @@
       var(--bg-color) 90%
     );
   }
+}
+
+/* During theme transition, hide the grid/overlay pattern instantly
+   so only the solid bg-color shows through the ripple.
+   Removing this class triggers a smooth 0.5s fade-in. */
+html.transitioning body::before,
+html.transitioning body::after {
+  opacity: 0;
+  transition: none;
 }
 
 @keyframes fadeIn {

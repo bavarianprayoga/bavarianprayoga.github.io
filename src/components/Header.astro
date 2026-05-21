@@ -103,6 +103,10 @@
       return;
     }
 
+    // Hide the grid/overlay pattern instantly so only solid bg-color
+    // shows through the ripple; they'll fade back in after.
+    document.documentElement.classList.add('transitioning');
+
     const dotWave = document.getElementById('dot-wave');
     if (dotWave) {
       dotWave.classList.remove('wave-active');
@@ -110,6 +114,8 @@
       dotWave.classList.add('wave-active');
       dotWave.addEventListener('animationend', () => {
         dotWave.classList.remove('wave-active');
+        // Ripple done — let the grid pattern fade back in.
+        document.documentElement.classList.remove('transitioning');
       }, { once: true });
     }
 
