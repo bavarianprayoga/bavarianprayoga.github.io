@@ -9,6 +9,7 @@
 :root {
     --font-color: #FFFFE3;
     --bg-color: #10100E;
+    --grid-gap: 4px;
     --grid-color-1: rgba(255, 255, 227, 0.015);
     --grid-color-2: rgba(255, 255, 227, 0.04);
     --grid-color-3: rgba(255, 255, 227, 0.08);
@@ -30,12 +31,6 @@
     background-color: var(--bg-color);
     color: var(--font-color);
     overflow-x: clip;
-    transition: background-color 0.5s ease, color 0.5s ease;
-  }
-
-  body::before,
-  body::after {
-    transition: background-color 0.5s ease, opacity 0.5s ease;
   }
 
   body::before,
@@ -48,7 +43,6 @@
   }
 
   body::before {
-    --grid-gap: 4px;
     --paper-bg: var(--bg-color);
 
     background-color: var(--bg-color);
@@ -102,7 +96,59 @@
 }
 
 a {
-  transition: color 0.3s ease;
+  /* color rides the ripple via view-transition */
+  color: inherit;
+  text-decoration: none;
+}
+
+/*  Dot wave overlay */
+#dot-wave {
+    position: fixed;
+    inset: -8rem;
+    z-index: 0;
+    pointer-events: none;
+    clip-path: circle(0% at 50% 0%);
+    background-image: radial-gradient(circle, var(--font-color) 2px, transparent 2px);
+    background-size: calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5);
+    background-position: calc(var(--grid-gap) * -2.5) calc(var(--grid-gap) * -2.5);
+}
+
+#dot-wave::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--bg-color);
+    clip-path: circle(0% at 50% 0%);
+}
+
+#dot-wave.wave-active {
+    animation: dot-wave-ring 2s cubic-bezier(1, 1, 1, 1) forwards;
+}
+
+#dot-wave.wave-active::after {
+    animation: dot-wave-ring 2s cubic-bezier(1, 1, 1, 1) 40ms forwards;
+}
+
+@keyframes dot-wave-ring {
+    0%   { clip-path: circle(0%   at 50% 0%); }
+    45%  { clip-path: circle(70%  at 50% 0%); }
+    100% { clip-path: circle(150% at 50% 0%); }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: vt-ripple 1.5s cubic-bezier(1, 1, 1, 1) forwards;
+}
+
+@keyframes vt-ripple {
+  0%   { clip-path: circle(0%   at 50% 0%);}
+  45%  { clip-path: circle(70%  at 50% 0%);}
+  100% { clip-path: circle(150% at 50% 0%);}
 }
 
 /* bg #10100E main clor FFFFE3 */
