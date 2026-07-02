@@ -4,7 +4,7 @@
 <section>
   <!-- <div class="md:grid md:grid-cols-2 mb-16 flex flex-wrap"> -->
   <div class="mb-16 flex flex-wrap justify-between gap-8">
-    <h1 class="text-5xl font-semibold">Bavarian Prayoga</h1>
+    <h1 class="text-5xl font-normal" style="font-family: 'Anthropic Serif Display', serif;">Bavarian &nbsp;Prayoga</h1>
     <div class="flex items-baseline-last gap-x-6 justify-end text-(--color-main)">
                 <a href="https://www.instagram.com/bavariaan/" target="_blank">
                     <svg class="h-8 w-8 shrink-0" fill="currentColor" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 50 50">
@@ -91,7 +91,7 @@
     }
   }
 
-  function runThemeTransition(newTheme) {
+  function runThemeTransition(newTheme: any) {
     const swap = () => {
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);

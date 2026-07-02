@@ -6,6 +6,11 @@
 @import "@fontsource/lilex/600.css";
 @import "@fontsource/lilex/700.css";
 
+@font-face { font-family: "Anthropic Serif Display"; font-weight: 300; font-style: normal; src: url("/fonts/anthropic-serif/AnthropicSerif-Display-Light-Static.otf") format("opentype"); font-display: swap; }
+@font-face { font-family: "Anthropic Serif Display"; font-weight: 400; font-style: normal; src: url("/fonts/anthropic-serif/AnthropicSerif-Display-Regular-Static.otf") format("opentype"); font-display: swap; }
+@font-face { font-family: "Anthropic Serif Display"; font-weight: 500; font-style: normal; src: url("/fonts/anthropic-serif/AnthropicSerif-Display-Medium-Static.otf") format("opentype"); font-display: swap; }
+@font-face { font-family: "Anthropic Serif Display"; font-weight: 600; font-style: normal; src: url("/fonts/anthropic-serif/AnthropicSerif-Display-Semibold-Static.otf") format("opentype"); font-display: swap; }
+
 :root {
     --font-color: #FFFFE3;
     --bg-color: #10100E;
@@ -79,9 +84,9 @@
 
   body::after {
     background: linear-gradient(
-      to bottom,
+      to top,
       var(--overlay-start),
-      var(--bg-color) 90%
+      var(--bg-color) 50%
     );
   }
 }
