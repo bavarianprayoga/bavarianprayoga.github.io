@@ -1,0 +1,220 @@
+---
+import Ascii from 'ascii.rest/astro';
+import alpineDawn from 'ascii.rest/pieces/alpine-dawn';
+
+// The Astro component reserves space for coloured scenes, but doesn't SSR their
+// canvas. Keep a library-generated first frame underneath for no/failed JS.
+const still = alpineDawn()(0);
+---
+
+<div class="landscape" aria-hidden="true" inert>
+    <div class="landscape-stage">
+        <pre class="landscape-still">{still}</pre>
+        <Ascii piece="alpine-dawn" fps={12} class="landscape-live" />
+    </div>
+    <span class="landscape-caption">alpine dawn / ascii.rest</span>
+</div>
+
+<script>
+    import { isPiece, load } from 'ascii.rest';
+
+    const scene = document.querySelector('ascii-art.landscape-live');
+    const toggle = document.getElementById('scene-toggle');
+    const picker = document.getElementById('scene-picker');
+    const choice = document.getElementById('scene-choice');
+    const feedback = document.getElementById('scene-feedback');
+    const caption = document.querySelector('.landscape-caption');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sceneNames = choice instanceof HTMLSelectElement
+        ? Array.from(choice.options).map((option) => option.value).filter(isPiece)
+        : [];
+    let paused = reducedMotion.matches;
+    let currentScene = 'alpine-dawn';
+    let selectedScene = 'alpine-dawn';
+    let sceneRequest = 0;
+    let rotationRequest = 0;
+    let randomTimer: number | undefined;
+    let previousFrame: HTMLCanvasElement | undefined;
+    let dissolve: Animation | undefined;
+
+    function clearPreviousFrame() {
+        dissolve?.cancel();
+        dissolve = undefined;
+        previousFrame?.remove();
+        previousFrame = undefined;
+    }
+
+    function capturePreviousFrame() {
+        const canvas = scene?.querySelector('canvas');
+        if (!canvas?.width || reducedMotion.matches) {
+            clearPreviousFrame();
+            return;
+        }
+        const snapshot = document.createElement('canvas');
+        snapshot.width = canvas.width;
+        snapshot.height = canvas.height;
+        const context = snapshot.getContext('2d');
+        if (!context) return;
+        context.drawImage(canvas, 0, 0);
+        // An interrupted dissolve starts from the currently visible blend,
+        // rather than flashing back to either of its two scenes.
+        if (previousFrame) {
+            context.globalAlpha = Number(getComputedStyle(previousFrame).opacity);
+            context.drawImage(previousFrame, 0, 0, snapshot.width, snapshot.height);
+        }
+        clearPreviousFrame();
+        snapshot.className = 'landscape-previous';
+        scene?.after(snapshot);
+        previousFrame = snapshot;
+    }
+
+    // mount() paints the first frame synchronously before this notification.
+    // Keep the outgoing image fully visible until that new canvas is ready.
+    const renderer = new MutationObserver(() => {
+        if (!previousFrame || dissolve ||
+            scene?.querySelector('canvas')?.getAttribute('aria-label') !== currentScene.replaceAll('-', ' ')) return;
+        if (reducedMotion.matches) {
+            clearPreviousFrame();
+            return;
+        }
+        const snapshot = previousFrame;
+        dissolve = snapshot.animate([{ opacity: 1 }, { opacity: 0 }], {
+            duration: 1200,
+            easing: 'ease-in-out',
+            fill: 'forwards',
+        });
+        void dissolve.finished.then(() => {
+            if (previousFrame === snapshot) clearPreviousFrame();
+        }).catch(() => {
+            // A newer choice or reduced-motion change can cancel this dissolve.
+        });
+    });
+
+    function rememberChoice() {
+        try {
+            localStorage.setItem('portfolio-scene', selectedScene);
+        } catch {
+            // Scene switching also works when storage is unavailable.
+        }
+    }
+
+    function randomScene() {
+        const candidates = sceneNames.filter((name) => name !== currentScene);
+        return candidates[Math.floor(Math.random() * candidates.length)] ?? currentScene;
+    }
+
+    function scheduleRandom() {
+        const rotation = ++rotationRequest;
+        window.clearTimeout(randomTimer);
+        if (selectedScene !== 'random' || paused || document.hidden) return;
+        randomTimer = window.setTimeout(async () => {
+            await changeScene(randomScene(), true);
+            // A pause, visibility change or new selection owns its own timer;
+            // an older in-flight rotation must not replace that fresh countdown.
+            if (rotation === rotationRequest) scheduleRandom();
+        }, 30_000);
+    }
+
+    function selectScene(name: string) {
+        if (name !== 'random' && !sceneNames.some((sceneName) => sceneName === name)) return;
+        selectedScene = name;
+        rememberChoice();
+        scheduleRandom();
+        void changeScene(name === 'random' ? randomScene() : name);
+    }
+
+    async function changeScene(name: string, automatic = false) {
+        if (!(choice instanceof HTMLSelectElement) || !isPiece(name) ||
+            !Array.from(choice.options).some((option) => option.value === name)) return;
+
+        const request = ++sceneRequest;
+        const rotation = rotationRequest;
+        if (name === currentScene) {
+            picker?.removeAttribute('aria-busy');
+            if (feedback) feedback.textContent = '';
+            return;
+        }
+        picker?.setAttribute('aria-busy', 'true');
+        if (feedback && !automatic) feedback.textContent = 'Loading scene…';
+
+        try {
+            // Load before changing the tag: keep the current canvas if a chunk
+            // fails. Only the latest choice wins when requests overlap.
+            const { meta } = await load[name]();
+            if (request !== sceneRequest) return;
+            if (automatic && (rotation !== rotationRequest || paused || document.hidden || selectedScene !== 'random')) return;
+            capturePreviousFrame();
+            currentScene = name;
+            scene?.setAttribute('piece', name);
+            if (caption) caption.textContent = `${meta.name} / ascii.rest`;
+            if (feedback) feedback.textContent = '';
+        } catch {
+            if (request !== sceneRequest || (automatic && rotation !== rotationRequest)) return;
+            if (selectedScene !== 'random') {
+                selectedScene = currentScene;
+                choice.value = currentScene;
+                rememberChoice();
+            }
+            if (feedback) feedback.textContent = 'Scene unavailable. Please try another.';
+        } finally {
+            if (request === sceneRequest) picker?.removeAttribute('aria-busy');
+        }
+    }
+
+    function updateScene() {
+        // Explicit play can opt into motion; a later system preference change
+        // resets that choice. The library also pauses RAF in hidden documents.
+        scene?.setAttribute('options', JSON.stringify({ motion: !paused }));
+        scene?.setAttribute('fps', paused ? '0' : '12');
+        toggle?.setAttribute('aria-pressed', String(paused));
+        toggle?.setAttribute('aria-label', paused ? 'Play landscape animation' : 'Pause landscape animation');
+        if (toggle) toggle.textContent = paused ? '[play scene]' : '[pause scene]';
+    }
+
+    if (scene && toggle) {
+        renderer.observe(scene, { childList: true });
+        // Leave the animation control hidden if the library script never loads.
+        customElements.whenDefined('ascii-art').then(() => {
+            // Don't override the library's own reduced-motion handling on load.
+            toggle.setAttribute('aria-pressed', String(paused));
+            toggle.setAttribute('aria-label', paused ? 'Play landscape animation' : 'Pause landscape animation');
+            toggle.textContent = paused ? '[play scene]' : '[pause scene]';
+            toggle.hidden = false;
+            if (choice instanceof HTMLSelectElement && picker) {
+                picker.hidden = false;
+                choice.addEventListener('change', () => selectScene(choice.value));
+                try {
+                    const saved = localStorage.getItem('portfolio-scene');
+                    if (saved && Array.from(choice.options).some((option) => option.value === saved)) {
+                        choice.value = saved;
+                        selectScene(saved);
+                    }
+                } catch {
+                    // Keep Alpine Dawn when preferences cannot be read.
+                }
+            }
+        });
+
+        toggle.addEventListener('click', () => {
+            paused = !paused;
+            updateScene();
+            scheduleRandom();
+        });
+
+        reducedMotion.addEventListener('change', () => {
+            paused = reducedMotion.matches;
+            if (reducedMotion.matches) clearPreviousFrame();
+            updateScene();
+            scheduleRandom();
+        });
+
+        // No hidden-tab rotations or catch-up burst on returning to the page.
+        document.addEventListener('visibilitychange', scheduleRandom);
+        window.addEventListener('pagehide', () => {
+            rotationRequest++;
+            window.clearTimeout(randomTimer);
+            clearPreviousFrame();
+        });
+        window.addEventListener('pageshow', scheduleRandom);
+    }
+</script>

@@ -1,0 +1,9 @@
+---
+import dividers from 'ascii.rest/pieces/dividers';
+
+// `dividers` is a 25-row sample sheet, not a single separator. Extract only
+// its sixth ornament (row 11), generated at a comfortable text measure.
+const rule = dividers({ width: 31 })(0).split('\n')[11].trim();
+---
+
+<pre class="ascii-decoration" aria-hidden="true">{rule}</pre>
