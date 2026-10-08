@@ -1,171 +1,420 @@
 @import "tailwindcss";
-@import "@fontsource/lilex/200.css";
-@import "@fontsource/lilex/300.css";
-@import "@fontsource/lilex/400.css";
-@import "@fontsource/lilex/500.css";
-@import "@fontsource/lilex/600.css";
-@import "@fontsource/lilex/700.css";
 
-@font-face { font-family: "Anthropic Serif Display"; font-weight: 300; font-style: normal; src: url("/fonts/anthropic-serif/AnthropicSerif-Display-Light-Static.otf") format("opentype"); font-display: swap; }
-@font-face { font-family: "Anthropic Serif Display"; font-weight: 400; font-style: normal; src: url("/fonts/anthropic-serif/AnthropicSerif-Display-Regular-Static.otf") format("opentype"); font-display: swap; }
-@font-face { font-family: "Anthropic Serif Display"; font-weight: 500; font-style: normal; src: url("/fonts/anthropic-serif/AnthropicSerif-Display-Medium-Static.otf") format("opentype"); font-display: swap; }
-@font-face { font-family: "Anthropic Serif Display"; font-weight: 600; font-style: normal; src: url("/fonts/anthropic-serif/AnthropicSerif-Display-Semibold-Static.otf") format("opentype"); font-display: swap; }
-
-:root {
-    --font-color: #FFFFE3;
-    --bg-color: #10100E;
-    --grid-gap: 4px;
-    --grid-color-1: rgba(255, 255, 227, 0.015);
-    --grid-color-2: rgba(255, 255, 227, 0.04);
-    --grid-color-3: rgba(255, 255, 227, 0.08);
-    --overlay-start: rgba(16, 16, 14, 0.12);
+@font-face {
+    font-family: "Ioskeley Mono";
+    font-weight: 400;
+    font-style: normal;
+    src: url("/fonts/ioskeley-mono/IoskeleyMono-Regular.woff2") format("woff2");
+    font-display: swap;
 }
 
+@font-face {
+    font-family: "Ioskeley Mono";
+    font-weight: 500;
+    font-style: normal;
+    src: url("/fonts/ioskeley-mono/IoskeleyMono-Medium.woff2") format("woff2");
+    font-display: swap;
+}
+
+:root {
+    --font-mono: "Ioskeley Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+    --font-color: #eef0f6;
+    --muted-color: #bec5d6;
+    --accent-color: #c6d8e5;
+    --panel-width: 35vw;
+    --scene-width: max(100vw, 200dvh);
+    color-scheme: dark;
+}
+
+/* Keep both tones light on a dark translucent backdrop. No inverted page
+   background, opaque paper, grid, view-transition ripple or dot-wave overlay. */
 [data-theme="light"] {
-    --font-color: #10100E;
-    --bg-color: #FFFFE3;
-    --grid-color-1: rgba(16, 16, 14, 0.015);
-    --grid-color-2: rgba(16, 16, 14, 0.04);
-    --grid-color-3: rgba(16, 16, 14, 0.08);
-    --overlay-start: rgba(255, 255, 227, 0.12);
+    --font-color: #fff5e3;
+    --muted-color: #d4c4b4;
+    --accent-color: #f2c8a7;
 }
 
 @layer base {
-  body {
-    font-family: "Lilex", ui-monospace, monospace;
-    background-color: var(--bg-color);
-    color: var(--font-color);
-    overflow-x: clip;
-  }
+    html {
+        height: 100%;
+        background: #090c18;
+        scrollbar-width: none;
+    }
 
-  body::before,
-  body::after {
-    content: "";
+    body {
+        margin: 0;
+        height: 100dvh;
+        overflow: hidden;
+        font-family: var(--font-mono);
+        font-size: 0.9375rem;
+        line-height: 1.75;
+        color: var(--font-color);
+        background: #090c18;
+        isolation: isolate;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, a, button, select {
+        font-family: var(--font-mono);
+    }
+
+    a {
+        color: var(--accent-color);
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 0.25em;
+        text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    }
+
+    a:hover {
+        color: var(--font-color);
+        text-decoration-color: currentColor;
+    }
+
+    button {
+        font: inherit;
+        color: var(--muted-color);
+        text-align: left;
+        cursor: pointer;
+    }
+
+    button:hover {
+        color: var(--font-color);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--accent-color);
+        outline-offset: 5px;
+    }
+
+    ::selection {
+        color: #090c18;
+        background: #f2c8a7;
+    }
+}
+
+.landscape {
     position: fixed;
-    inset: -8rem;
-    z-index: 0;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
     pointer-events: none;
-    transition: opacity 0.5s ease;
-  }
-
-  body::before {
-    --paper-bg: var(--bg-color);
-
-    background-color: var(--bg-color);
-    background-image:
-      linear-gradient(var(--grid-color-1) 0 1px, transparent 1px var(--grid-gap)),
-      linear-gradient(to right, var(--grid-color-1) 0 1px, transparent 1px var(--grid-gap)),
-      linear-gradient(var(--grid-color-2) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
-      linear-gradient(to right, var(--grid-color-2) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
-      radial-gradient(
-        circle at center,
-        transparent calc(var(--grid-gap) / 2),
-        var(--paper-bg) calc(var(--grid-gap) / 2) 100%
-      ),
-      linear-gradient(var(--grid-color-3) 0 1px, transparent 1px calc(var(--grid-gap) * 5)),
-      linear-gradient(to right, var(--grid-color-3) 0 1px, transparent 1px calc(var(--grid-gap) * 5));
-    background-size:
-      var(--grid-gap) var(--grid-gap),
-      var(--grid-gap) var(--grid-gap),
-      calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
-      calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
-      calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
-      calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5),
-      calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5);
-    background-position:
-      0 0,
-      0 0,
-      0 0,
-      0 0,
-      calc(var(--grid-gap) * -2.5) calc(var(--grid-gap) * -2.5),
-      0 0,
-      0 0;
-  }
-
-  body::after {
-    background: linear-gradient(
-      to top,
-      var(--overlay-start),
-      var(--bg-color) 50%
-    );
-  }
+    user-select: none;
 }
 
-/* During theme transition, hide the grid/overlay pattern instantly
-   so only the solid bg-color shows through the ripple.
-   Removing this class triggers a smooth 0.5s fade-in. */
-html.transitioning body::before,
-html.transitioning body::after {
-  opacity: 0;
-  transition: none;
+/* All 15 scene presets: 200 columns × 100 rows, square cells. Cover with a
+   uniformly scaled 2:1 stage; never independently stretch width and height. */
+.landscape-stage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--scene-width);
+    aspect-ratio: 2 / 1;
+    transform: translate(-50%, -50%);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-#page-content {
-  opacity: 0;
-  animation: fadeIn 1.0s ease-out 0.5s forwards;
-}
-
-a {
-  /* color rides the ripple via view-transition */
-  color: inherit;
-  text-decoration: none;
-}
-
-/*  Dot wave overlay */
-#dot-wave {
-    position: fixed;
-    inset: -8rem;
-    z-index: 0;
-    pointer-events: none;
-    clip-path: circle(0% at 50% 0%);
-    background-image: radial-gradient(circle, var(--font-color) 2px, transparent 2px);
-    background-size: calc(var(--grid-gap) * 5) calc(var(--grid-gap) * 5);
-    background-position: calc(var(--grid-gap) * -2.5) calc(var(--grid-gap) * -2.5);
-}
-
-#dot-wave::after {
-    content: "";
+.landscape-still {
     position: absolute;
     inset: 0;
-    background-color: var(--bg-color);
-    clip-path: circle(0% at 50% 0%);
+    margin: 0;
+    overflow: hidden;
+    color: #9eaad3;
+    font-family: var(--font-mono);
+    font-size: calc(var(--scene-width) / 120);
+    /* Square cells, including when fallback font metrics differ. Adjust the
+       advance with spacing, without stretching the characters themselves. */
+    line-height: 0.6;
+    letter-spacing: calc(var(--scene-width) / 200 - 1ch);
+    white-space: pre;
+    font-variant-ligatures: none;
 }
 
-#dot-wave.wave-active {
-    animation: dot-wave-ring 2s cubic-bezier(1, 1, 1, 1) forwards;
+.landscape-live {
+    position: absolute;
+    inset: 0;
 }
 
-#dot-wave.wave-active::after {
-    animation: dot-wave-ring 2s cubic-bezier(1, 1, 1, 1) 40ms forwards;
+/* Let the real SSR first frame show through the library's empty placeholder.
+   A successfully painted canvas naturally covers it; failed JS leaves it. */
+.landscape-live > div {
+    display: none;
 }
 
-@keyframes dot-wave-ring {
-    0%   { clip-path: circle(0%   at 50% 0%); }
-    45%  { clip-path: circle(70%  at 50% 0%); }
-    100% { clip-path: circle(150% at 50% 0%); }
+.landscape-live > canvas {
+    width: 100%;
+    height: auto;
 }
 
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
+/* A single still of the outgoing scene dissolves over the new canvas. No
+   zoom, blur, bright flash or fade through black; removed after 1.2 seconds. */
+.landscape-previous {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
 }
 
-::view-transition-new(root) {
-  animation: vt-ripple 1.5s cubic-bezier(1, 1, 1, 1) forwards;
+.landscape-caption {
+    position: absolute;
+    right: 1.5rem;
+    bottom: 1rem;
+    color: #c6c3d8;
+    font-size: 0.6875rem;
+    text-shadow: 0 1px 6px #000;
 }
 
-@keyframes vt-ripple {
-  0%   { clip-path: circle(0%   at 50% 0%);}
-  45%  { clip-path: circle(70%  at 50% 0%);}
-  100% { clip-path: circle(150% at 50% 0%);}
+/* Backdrop only: the actual content has no opacity and remains selectable. */
+.content-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+        to right,
+        rgb(0 0 0 / 70%) 0%,
+        rgb(0 0 0 / 70%) var(--panel-width),
+        rgb(0 0 0 / 38%) calc(var(--panel-width) + 9vw),
+        transparent calc(var(--panel-width) + 25vw)
+    );
 }
 
-/* bg #10100E main clor FFFFE3 */
+.portfolio-pane {
+    width: var(--panel-width);
+    height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none;
+    padding: clamp(2rem, 5vh, 4rem) clamp(1.5rem, 2.8vw, 3.5rem);
+}
 
-/** {border: 1px solid red;}*/
+/* Hide the tracks, not overflow: native wheel, touch and keyboard scrolling
+   remain available. This also covers browsers using WebKit scrollbar rules. */
+html::-webkit-scrollbar,
+.portfolio-pane::-webkit-scrollbar {
+    display: none;
+}
+
+.portfolio-pane:focus-visible {
+    outline-offset: -3px;
+}
+
+.portfolio-copy {
+    max-width: 44ch;
+}
+
+.skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 2;
+    padding: 0.5rem 0.75rem;
+    background: #090c18;
+    transform: translateY(-200%);
+}
+
+.skip-link:focus {
+    transform: none;
+}
+
+.eyebrow {
+    margin-bottom: 1.5rem;
+    color: var(--muted-color);
+    font-size: 0.75rem;
+}
+
+.portfolio-header h1 {
+    margin-bottom: 1.5rem;
+    font-size: clamp(1.75rem, 2.75vw, 3rem);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+}
+
+.contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.8125rem;
+}
+
+.contact-links a, .portfolio-controls button {
+    display: inline-block;
+    padding-block: 0.35rem;
+}
+
+.portfolio-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-top: 1.25rem;
+    font-size: 0.6875rem;
+}
+
+.scene-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-basis: 100%;
+    max-width: 100%;
+    color: var(--muted-color);
+}
+
+.scene-picker[hidden] {
+    display: none;
+}
+
+.scene-select {
+    position: relative;
+    min-width: 0;
+}
+
+.scene-select select {
+    appearance: none;
+    max-width: 100%;
+    padding: 0.35rem 1.4rem 0.35rem 0.25rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font: inherit;
+    color: var(--accent-color);
+    cursor: pointer;
+}
+
+.scene-select select:hover {
+    color: var(--font-color);
+}
+
+.scene-select option, .scene-select optgroup {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    background: #090c18;
+    color: var(--font-color);
+}
+
+.scene-select-arrow {
+    position: absolute;
+    right: 0.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.scene-feedback {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--muted-color);
+}
+
+.scene-feedback:empty {
+    display: none;
+}
+
+/* Override ASCII Rest's explicit system-font defaults, not just inheritance. */
+ascii-art > pre, .ascii-decoration {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+}
+
+.ascii-decoration {
+    margin: 1.75rem 0;
+    overflow: hidden;
+    color: var(--muted-color);
+    font-size: 0.6875rem;
+    line-height: 1;
+    letter-spacing: 0;
+    white-space: pre;
+}
+
+.about-sections h2 {
+    margin-bottom: 0.875rem;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.about-sections p, .projects dd {
+    margin: 0;
+    overflow-wrap: break-word;
+}
+
+.portrait {
+    margin: 0;
+}
+
+.portrait img {
+    display: block;
+    width: 250px;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid rgb(198 195 216 / 30%);
+}
+
+.portrait figcaption {
+    margin-top: 0.75rem;
+    color: var(--muted-color);
+    font-size: 0.8125rem;
+}
+
+.projects dt {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.projects dd + dt {
+    margin-top: 1.75rem;
+}
+
+/* A single normal document scrollbar on touch/narrow layouts. The scenery and
+   dark backing stay fixed, while the semantic content flows at readable width. */
+@media (max-width: 1023px) {
+    body {
+        height: auto;
+        min-height: 100dvh;
+        overflow: visible;
+        overflow-x: clip;
+    }
+
+    .portfolio-pane {
+        width: 100%;
+        height: auto;
+        min-height: 100dvh;
+        overflow: visible;
+        padding: 2.25rem clamp(1.25rem, 6vw, 3rem) 3rem;
+    }
+
+    .portfolio-copy {
+        max-width: 52ch;
+    }
+
+    .content-backdrop {
+        background: linear-gradient(to right, rgb(0 0 0 / 76%), rgb(0 0 0 / 70%));
+    }
+
+    .portfolio-header h1 {
+        max-width: 12ch;
+        font-size: clamp(2rem, 6vw, 2.75rem);
+    }
+
+    .contact-links a, .portfolio-controls button, .scene-select select {
+        min-height: 44px;
+        padding-block: 0.65rem;
+    }
+
+    .landscape-caption {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation: none;
+        transition: none;
+        scroll-behavior: auto;
+    }
+}

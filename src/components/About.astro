@@ -1,31 +1,40 @@
-<section class="flex flex-col gap-16">
-    <div>
-        <h2 class="font-normal text-3xl mb-4">About me</h2>
-        <p class="font-light">
-            Computer Science undergraduate at BINUS University with an interest in cybersecurity, artificial intelligence, and backend development. 
-            I enjoy building secure and practical systems, especially solutions that combine AI with modern security approaches. 
+---
+import AsciiDivider from './AsciiDivider.astro';
+---
+
+<div class="about-sections">
+    <section aria-labelledby="about-heading">
+        <h2 id="about-heading">About me</h2>
+        <p>
+            Computer Science undergraduate at BINUS University with an interest in cybersecurity, artificial intelligence, and backend development.
+            I enjoy building secure and practical systems, especially solutions that combine AI with modern security approaches.
             Constantly exploring new technologies and improving my skills through projects and hands-on experience.
         </p>
-    </div>
-    <div>
-        <h2 class="font-normal text-3xl mb-4">What I'm up to</h2>
-        <p class="font-light">
-            Currently on an internship at Plaza Toyota as a System Engineer, working on backend and managing Omnichannel integration using Copilot Agent 
-            service for Plaza customers. 
+    </section>
+    <AsciiDivider />
+    <section aria-labelledby="now-heading">
+        <h2 id="now-heading">What I'm up to</h2>
+        <p>
+            Currently on an internship at Plaza Toyota as a System Engineer, working on backend and managing Omnichannel integration using Copilot Agent
+            service for Plaza customers.
         </p>
-    </div>
-    <div>
-        <h2 class="font-normal text-3xl mb-4">What do I look like</h2>
-        <img src="/shadowsmoke.jpg" alt="orang ganteng" width="250" height="250"></img>
-        <p class="font-light">Pretty much</p>
-    </div>
-    <div>
-        <h2 class="font-normal text-3xl mb-4">My projects</h2>
-        <dl>
-            <dt class="font-normal text-lg"><a href="https://github.com/bavarianprayoga/currencyforecast" target="_blank">Currency Forecaster</a></dt>
-            <dd class="font-light mb-4">An application that forecasts the directional movement of a currency over the next n days using LightGBM, predicting whether it will trend upward or downward.</dd>
-            <dt class="font-normal text-lg"><a href="https://github.com/bavarianprayoga/landscapecolorizer" target="_blank">Landscape Colorizer</a></dt>
-            <dd class="font-light mb-4">A landscape image colorization application that converts black-and-white scenery into color using a hybrid architecture combining ResNet-18, U-Net, and skip connections.</dd>
+    </section>
+    <AsciiDivider />
+    <section aria-labelledby="portrait-heading">
+        <h2 id="portrait-heading">What do I look like</h2>
+        <figure class="portrait">
+            <img src="/shadowsmoke.jpg" alt="orang ganteng" width="250" height="250" loading="lazy" />
+            <figcaption>Pretty much</figcaption>
+        </figure>
+    </section>
+    <AsciiDivider />
+    <section aria-labelledby="projects-heading">
+        <h2 id="projects-heading">My projects</h2>
+        <dl class="projects">
+            <dt><a href="https://github.com/bavarianprayoga/currencyforecast" target="_blank" rel="noopener noreferrer">Currency Forecaster</a></dt>
+            <dd>An application that forecasts the directional movement of a currency over the next n days using LightGBM, predicting whether it will trend upward or downward.</dd>
+            <dt><a href="https://github.com/bavarianprayoga/landscapecolorizer" target="_blank" rel="noopener noreferrer">Landscape Colorizer</a></dt>
+            <dd>A landscape image colorization application that converts black-and-white scenery into color using a hybrid architecture combining ResNet-18, U-Net, and skip connections.</dd>
         </dl>
-    </div>
-</section>
+    </section>
+</div>
