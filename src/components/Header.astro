@@ -1,35 +1,5 @@
 ---
 import AsciiDivider from './AsciiDivider.astro';
-
-// Full-scene presets in the pinned ASCII Rest release. Its form-controls piece
-// is a visual demonstration, so the chooser stays a real keyboard/touch select.
-const sceneGroups = [
-    {
-        label: 'Nature',
-        pieces: [
-            ['alpine-dawn', 'Alpine Dawn'],
-            ['aurora-fjord', 'Aurora Fjord'],
-            ['deep-reef', 'Deep Reef'],
-            ['desert-night', 'Desert Night'],
-            ['lantern-lake', 'Lantern Lake'],
-            ['misty-forest', 'Misty Forest'],
-            ['night-coast', 'Night Coast'],
-            ['ocean-sunset', 'Ocean Sunset'],
-            ['storm-plains', 'Storm Plains'],
-        ],
-    },
-    {
-        label: 'Places',
-        pieces: [
-            ['kyoto-dusk', 'Kyoto Dusk'],
-            ['marine-drive', 'Marine Drive'],
-            ['taj-dawn', 'Taj Dawn'],
-            ['tokyo-rain', 'Tokyo Rain'],
-            ['varanasi-ghats', 'Varanasi Ghats'],
-        ],
-    },
-    { label: 'Space', pieces: [['earthrise', 'Earthrise']] },
-] as const;
 ---
 
 <header class="portfolio-header">
@@ -43,54 +13,5 @@ const sceneGroups = [
             <li><a href="mailto:bavarianprayoga@protonmail.com" target="_blank" rel="noopener noreferrer">Email</a></li>
         </ul>
     </nav>
-    <div class="portfolio-controls" aria-label="Display controls">
-        <button id="theme-toggle" type="button" aria-label="Use warm text colors" aria-pressed="false" hidden>[tone: cool]</button>
-        <button id="scene-toggle" type="button" aria-label="Pause landscape animation" aria-pressed="false" hidden>[pause scene]</button>
-        <div id="scene-picker" class="scene-picker" hidden>
-            <span aria-hidden="true">[</span>
-            <label for="scene-choice">scene:</label>
-            <span class="scene-select">
-                <select id="scene-choice" aria-label="Landscape scene">
-                    {sceneGroups.map(({ label, pieces }) => (
-                        <optgroup label={label}>
-                            {pieces.map(([value, name]) => <option value={value}>{name}</option>)}
-                        </optgroup>
-                    ))}
-                    <option value="random">Random — every 30s</option>
-                </select>
-                <span class="scene-select-arrow" aria-hidden="true">v</span>
-            </span>
-            <span aria-hidden="true">]</span>
-        </div>
-        <p id="scene-feedback" class="scene-feedback" role="status"></p>
-    </div>
     <AsciiDivider />
 </header>
-
-<script>
-    const toggle = document.getElementById('theme-toggle');
-
-    function updateTone() {
-        const warm = document.documentElement.getAttribute('data-theme') === 'light';
-        toggle?.setAttribute('aria-pressed', String(warm));
-        toggle?.setAttribute('aria-label', warm ? 'Use cool text colors' : 'Use warm text colors');
-        if (toggle) toggle.textContent = warm ? '[tone: warm]' : '[tone: cool]';
-    }
-
-    toggle?.addEventListener('click', () => {
-        const warm = document.documentElement.getAttribute('data-theme') === 'light';
-        const theme = warm ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', theme);
-        // Storage may be unavailable (privacy settings/file previews). The
-        // control still works, and no full-page ripple covers the landscape.
-        try {
-            localStorage.setItem('theme', theme);
-        } catch {
-            // The preference will just last for this page visit.
-        }
-        updateTone();
-    });
-
-    updateTone();
-    if (toggle) toggle.hidden = false;
-</script>

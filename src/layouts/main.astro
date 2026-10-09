@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import AsciiLandscape from '../components/AsciiLandscape.astro';
+import DisplayControls from '../components/DisplayControls.astro';
 ---
 
 <html lang="en">
@@ -16,14 +17,18 @@ import AsciiLandscape from '../components/AsciiLandscape.astro';
         <script is:inline>
             (function() {
                 let theme = 'dark';
+                let side = 'left';
                 try {
+                    const savedSide = localStorage.getItem('portfolio-side');
+                    if (savedSide === 'right') side = 'right';
                     const saved = localStorage.getItem('theme');
                     if (saved === 'light' || saved === 'dark') theme = saved;
                     else if (window.matchMedia('(prefers-color-scheme: light)').matches) theme = 'light';
                 } catch {
-                    // Default to readable cool text when storage is unavailable.
+                    // Default to cool text and the left layout without storage.
                 }
                 document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.setAttribute('data-content-side', side);
             })();
         </script>
     </head>
@@ -36,5 +41,7 @@ import AsciiLandscape from '../components/AsciiLandscape.astro';
                 <slot />
             </div>
         </main>
+        <div class="content-edge-fade" aria-hidden="true" inert></div>
+        <DisplayControls />
     </body>
 </html>

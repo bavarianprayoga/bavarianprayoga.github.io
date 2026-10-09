@@ -12,7 +12,6 @@ const still = alpineDawn()(0);
         <pre class="landscape-still">{still}</pre>
         <Ascii piece="alpine-dawn" fps={12} class="landscape-live" />
     </div>
-    <span class="landscape-caption">alpine dawn / ascii.rest</span>
 </div>
 
 <script>
@@ -23,7 +22,7 @@ const still = alpineDawn()(0);
     const picker = document.getElementById('scene-picker');
     const choice = document.getElementById('scene-choice');
     const feedback = document.getElementById('scene-feedback');
-    const caption = document.querySelector('.landscape-caption');
+    const caption = document.getElementById('scene-name');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const sceneNames = choice instanceof HTMLSelectElement
         ? Array.from(choice.options).map((option) => option.value).filter(isPiece)
@@ -90,6 +89,18 @@ const still = alpineDawn()(0);
         });
     });
 
+    function updateCaption() {
+        if (!(choice instanceof HTMLSelectElement)) return;
+        const name = Array.from(choice.options).find((option) => option.value === currentScene)?.textContent ?? 'Alpine Dawn';
+        if (caption) caption.textContent = name;
+        const shuffle = choice.querySelector('option[value="random"]');
+        // The dropdown is also the scene caption, including during rotation.
+        if (shuffle) shuffle.textContent = selectedScene === 'random' ? `${name} · Shuffle` : 'Shuffle';
+        const label = choice.selectedOptions[0]?.textContent ?? name;
+        picker?.style.setProperty('--scene-label-width', `${label.length}ch`);
+        choice.title = selectedScene === 'random' ? `${name} · Shuffle every 30 seconds` : name;
+    }
+
     function rememberChoice() {
         try {
             localStorage.setItem('portfolio-scene', selectedScene);
@@ -119,6 +130,7 @@ const still = alpineDawn()(0);
         if (name !== 'random' && !sceneNames.some((sceneName) => sceneName === name)) return;
         selectedScene = name;
         rememberChoice();
+        updateCaption();
         scheduleRandom();
         void changeScene(name === 'random' ? randomScene() : name);
     }
@@ -140,13 +152,13 @@ const still = alpineDawn()(0);
         try {
             // Load before changing the tag: keep the current canvas if a chunk
             // fails. Only the latest choice wins when requests overlap.
-            const { meta } = await load[name]();
+            await load[name]();
             if (request !== sceneRequest) return;
             if (automatic && (rotation !== rotationRequest || paused || document.hidden || selectedScene !== 'random')) return;
             capturePreviousFrame();
             currentScene = name;
             scene?.setAttribute('piece', name);
-            if (caption) caption.textContent = `${meta.name} / ascii.rest`;
+            updateCaption();
             if (feedback) feedback.textContent = '';
         } catch {
             if (request !== sceneRequest || (automatic && rotation !== rotationRequest)) return;
@@ -155,6 +167,7 @@ const still = alpineDawn()(0);
                 choice.value = currentScene;
                 rememberChoice();
             }
+            updateCaption();
             if (feedback) feedback.textContent = 'Scene unavailable. Please try another.';
         } finally {
             if (request === sceneRequest) picker?.removeAttribute('aria-busy');
@@ -168,7 +181,7 @@ const still = alpineDawn()(0);
         scene?.setAttribute('fps', paused ? '0' : '12');
         toggle?.setAttribute('aria-pressed', String(paused));
         toggle?.setAttribute('aria-label', paused ? 'Play landscape animation' : 'Pause landscape animation');
-        if (toggle) toggle.textContent = paused ? '[play scene]' : '[pause scene]';
+        if (toggle) toggle.textContent = paused ? '[resume]' : '[freeze]';
     }
 
     if (scene && toggle) {
@@ -178,10 +191,12 @@ const still = alpineDawn()(0);
             // Don't override the library's own reduced-motion handling on load.
             toggle.setAttribute('aria-pressed', String(paused));
             toggle.setAttribute('aria-label', paused ? 'Play landscape animation' : 'Pause landscape animation');
-            toggle.textContent = paused ? '[play scene]' : '[pause scene]';
+            toggle.textContent = paused ? '[resume]' : '[freeze]';
             toggle.hidden = false;
             if (choice instanceof HTMLSelectElement && picker) {
                 picker.hidden = false;
+                if (caption) caption.hidden = true;
+                updateCaption();
                 choice.addEventListener('change', () => selectScene(choice.value));
                 try {
                     const saved = localStorage.getItem('portfolio-scene');

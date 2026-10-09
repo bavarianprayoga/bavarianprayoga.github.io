@@ -23,6 +23,14 @@
     --accent-color: #c6d8e5;
     --panel-width: 35vw;
     --scene-width: max(100vw, 200dvh);
+    --controls-inset: clamp(0.75rem, 1.5vw, 1.5rem);
+    --controls-left: max(var(--controls-inset), env(safe-area-inset-left, 0px));
+    --controls-right: max(var(--controls-inset), env(safe-area-inset-right, 0px));
+    --controls-bottom: max(var(--controls-inset), env(safe-area-inset-bottom, 0px));
+    --controls-clearance: calc(2.75rem + var(--controls-bottom) + 1.5rem);
+    --content-fade-height: clamp(5rem, 12dvh, 7rem);
+    --content-feather: clamp(1.5rem, 4dvh, 3rem);
+    --reading-clearance: var(--content-fade-height);
     color-scheme: dark;
 }
 
@@ -39,6 +47,7 @@
         height: 100%;
         background: #090c18;
         scrollbar-width: none;
+        scroll-padding-bottom: var(--reading-clearance);
     }
 
     body {
@@ -156,28 +165,67 @@
     pointer-events: none;
 }
 
-.landscape-caption {
-    position: absolute;
-    right: 1.5rem;
-    bottom: 1rem;
-    color: #c6c3d8;
-    font-size: 0.6875rem;
-    text-shadow: 0 1px 6px #000;
-}
-
-/* Backdrop only: the actual content has no opacity and remains selectable. */
+/* Backdrop only: content is fully opaque at rest and remains selectable.
+   Two mirrored layers allow a short dissolve without moving the scenery. */
 .content-backdrop {
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
+}
+
+.content-backdrop::before, .content-backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
     background: linear-gradient(
         to right,
         rgb(0 0 0 / 70%) 0%,
         rgb(0 0 0 / 70%) var(--panel-width),
-        rgb(0 0 0 / 38%) calc(var(--panel-width) + 9vw),
-        transparent calc(var(--panel-width) + 25vw)
+        rgb(0 0 0 / 67%) calc(var(--panel-width) + 6.25vw),
+        rgb(0 0 0 / 60%) calc(var(--panel-width) + 12.5vw),
+        rgb(0 0 0 / 35%) calc(var(--panel-width) + 25vw),
+        rgb(0 0 0 / 10%) calc(var(--panel-width) + 37.5vw),
+        rgb(0 0 0 / 3%) calc(var(--panel-width) + 43.75vw),
+        transparent calc(var(--panel-width) + 50vw)
     );
+}
+
+.content-backdrop::after {
+    opacity: 0;
+    transform: scaleX(-1);
+}
+
+/* A shorter feathered edge local to the reading area. The floating
+   controls keep only their original diffuse shadow, with no added mask. */
+.content-edge-fade {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
+    width: 100%;
+    height: var(--reading-clearance);
+    pointer-events: none;
+}
+
+.content-edge-fade::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: calc(var(--panel-width) + 12vw);
+    max-width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgb(0 0 0 / 10%) 25%,
+        rgb(0 0 0 / 40%) 60%,
+        rgb(0 0 0 / 75%) 85%,
+        #000 100%
+    );
+    mask-image: linear-gradient(to right, #000 var(--panel-width), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 var(--panel-width), transparent 100%);
 }
 
 .portfolio-pane {
@@ -188,6 +236,8 @@
     overscroll-behavior-y: contain;
     scrollbar-width: none;
     padding: clamp(2rem, 5vh, 4rem) clamp(1.5rem, 2.8vw, 3.5rem);
+    padding-bottom: max(clamp(2rem, 5vh, 4rem), var(--reading-clearance));
+    scroll-padding-bottom: var(--reading-clearance);
 }
 
 /* Hide the tracks, not overflow: native wheel, touch and keyboard scrolling
@@ -243,46 +293,100 @@ html::-webkit-scrollbar,
     font-size: 0.8125rem;
 }
 
-.contact-links a, .portfolio-controls button {
+.contact-links a {
     display: inline-block;
     padding-block: 0.35rem;
 }
 
+/* Text controls join the scene credit in one bottom-edge line. No panel,
+   border or boxed buttons: only a diffuse shadow. */
 .portfolio-controls {
+    position: fixed;
+    right: var(--controls-right);
+    bottom: var(--controls-bottom);
+    z-index: 2;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 1rem;
-    margin-top: 1.25rem;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    width: max-content;
+    max-width: calc(100vw - var(--controls-left) - var(--controls-right));
     font-size: 0.6875rem;
+    line-height: 1.5;
+    white-space: nowrap;
+    text-shadow: 0 1px 4px #000, 0 0 10px #000;
+}
+
+.portfolio-controls::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: -0.625rem -1rem;
+    background: radial-gradient(ellipse, rgb(0 0 0 / 75%) 0%, rgb(0 0 0 / 45%) 65%, transparent 100%);
+    filter: blur(12px);
+    pointer-events: none;
+}
+
+.portfolio-controls[hidden], .portfolio-controls [hidden] {
+    display: none;
+}
+
+.portfolio-controls button {
+    flex: none;
+    display: inline-block;
+    padding-block: 0.35rem;
+    text-shadow: inherit;
+}
+
+.landscape-credit {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+    color: var(--muted-color);
+}
+
+.landscape-credit > span, .landscape-credit > a {
+    flex: none;
+}
+
+.landscape-credit a {
+    display: inline-flex;
+    align-items: center;
+    padding-block: 0.35rem;
+    color: var(--muted-color);
+    text-decoration: none;
+}
+
+.landscape-credit a:hover, .landscape-credit a:focus-visible {
+    color: var(--font-color);
+    text-decoration: underline;
 }
 
 .scene-picker {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
-    flex-basis: 100%;
-    max-width: 100%;
-    color: var(--muted-color);
-}
-
-.scene-picker[hidden] {
-    display: none;
+    flex: 0 1 auto;
+    min-width: 0;
 }
 
 .scene-select {
     position: relative;
+    flex: 0 1 auto;
+    width: calc(var(--scene-label-width, 10ch) + 1.65rem);
     min-width: 0;
 }
 
 .scene-select select {
     appearance: none;
-    max-width: 100%;
+    width: 100%;
     padding: 0.35rem 1.4rem 0.35rem 0.25rem;
     border: 0;
     border-radius: 0;
     background: transparent;
     font: inherit;
     color: var(--accent-color);
+    text-shadow: inherit;
     cursor: pointer;
 }
 
@@ -306,9 +410,14 @@ html::-webkit-scrollbar,
 }
 
 .scene-feedback {
-    flex-basis: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 0.375rem);
     margin: 0;
     color: var(--muted-color);
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 .scene-feedback:empty {
@@ -370,9 +479,69 @@ ascii-art > pre, .ascii-decoration {
     margin-top: 1.75rem;
 }
 
+/* Mirror desktop placement/alignment, not the characters or the landscape.
+   Reuse the nodes to preserve focus, scrolling and scene state. */
+@media (min-width: 1024px) {
+    [data-content-side="right"] .portfolio-pane {
+        margin-left: calc(100vw - var(--panel-width));
+        text-align: right;
+    }
+
+    [data-content-side="right"] .portfolio-copy,
+    [data-content-side="right"] .portrait img {
+        margin-left: auto;
+    }
+
+    [data-content-side="right"] .contact-links {
+        justify-content: flex-end;
+    }
+
+    [data-content-side="right"] .portfolio-controls {
+        left: var(--controls-left);
+        right: auto;
+    }
+
+    /* No/failed JS still puts the reference on the outside. With JS, real DOM
+       ordering supplies the same visual order and matching native Tab order. */
+    [data-content-side="right"] .portfolio-controls:not([data-order]),
+    [data-content-side="right"] .portfolio-controls:not([data-order]) .landscape-credit {
+        flex-direction: row-reverse;
+    }
+
+    [data-content-side="right"] .content-backdrop::before {
+        opacity: 0;
+    }
+
+    [data-content-side="right"] .content-backdrop::after {
+        opacity: 1;
+    }
+
+    [data-content-side="right"] .content-edge-fade::before {
+        left: auto;
+        right: 0;
+        transform: scaleX(-1);
+    }
+
+    [data-content-side="right"] .skip-link {
+        left: auto;
+        right: 0.75rem;
+    }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    [data-side-switching] .content-backdrop::before,
+    [data-side-switching] .content-backdrop::after {
+        transition: opacity 180ms ease-in-out;
+    }
+}
+
 /* A single normal document scrollbar on touch/narrow layouts. The scenery and
    dark backing stay fixed, while the semantic content flows at readable width. */
 @media (max-width: 1023px) {
+    :root {
+        --reading-clearance: max(var(--content-fade-height), calc(var(--controls-clearance) + var(--content-feather)));
+    }
+
     body {
         height: auto;
         min-height: 100dvh;
@@ -385,15 +554,28 @@ ascii-art > pre, .ascii-decoration {
         height: auto;
         min-height: 100dvh;
         overflow: visible;
-        padding: 2.25rem clamp(1.25rem, 6vw, 3rem) 3rem;
+        padding: 2.25rem clamp(1.25rem, 6vw, 3rem) max(3rem, var(--reading-clearance));
     }
 
     .portfolio-copy {
         max-width: 52ch;
     }
 
-    .content-backdrop {
+    .content-backdrop::before {
         background: linear-gradient(to right, rgb(0 0 0 / 76%), rgb(0 0 0 / 70%));
+    }
+
+    .content-edge-fade::before {
+        width: 100%;
+        background: linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgb(0 0 0 / 25%) calc((100% - var(--controls-clearance)) / 2),
+            #000 calc(100% - var(--controls-clearance)),
+            #000 100%
+        );
+        mask-image: none;
+        -webkit-mask-image: none;
     }
 
     .portfolio-header h1 {
@@ -401,14 +583,15 @@ ascii-art > pre, .ascii-decoration {
         font-size: clamp(2rem, 6vw, 2.75rem);
     }
 
-    .contact-links a, .portfolio-controls button, .scene-select select {
+    .contact-links a, .portfolio-controls button, .scene-select select, .landscape-credit a {
         min-height: 44px;
         padding-block: 0.65rem;
     }
 
-    .landscape-caption {
-        display: none;
+    .portfolio-controls {
+        gap: 0.5rem;
     }
+
 }
 
 @media (prefers-reduced-motion: reduce) {

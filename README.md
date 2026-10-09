@@ -19,27 +19,56 @@ The preview server serves the built static site; rebuild after changing sources.
 ## ASCII Rest redesign
 
 - Alpine Dawn initially fills a fixed, uniformly scaled 2:1 landscape stage.
-  `[scene: Alpine Dawn v]` is a native keyboard/touch dropdown offering all 15
+  The scene-name native dropdown offers all 15
   library scene presets, grouped into Nature, Places and Space. Choices are
   lazy-loaded and remembered locally, without resetting the pause state.
   Scene changes use a gentle 1.2-second dissolve, with no zoom or black flash;
   reduced motion switches immediately instead.
-  `Random — every 30s` chooses a new scene immediately and rotates every 30
-  seconds without repeating the current scene. Pause stops both animation and
-  rotation. Rotation also waits while the tab is hidden, and the Random choice
-  is remembered across visits.
-  The current scene and ASCII Rest credit remain in the bottom-right caption
-  on desktop, not in the main content.
+  `Shuffle` chooses a new scene immediately and rotates every 30 seconds
+  without repeating the current scene. Pause stops both animation and rotation.
+  Rotation also waits while the tab is hidden, and the choice is remembered
+  across visits.
+  The floating scene caption doubles as the dropdown, alongside the
+  `ascii.rest` source link, rather than duplicating the name elsewhere.
+  During Shuffle it displays the current scene name with a Shuffle suffix.
 - Desktop uses one independently scrolling, 35vw reading pane; narrow screens
   use normal page scrolling. Scrollbar tracks are hidden without disabling
-  scrolling. A separate black backdrop stays translucent (70% on desktop).
+  scrolling. A separate black backdrop stays translucent (70% on desktop),
+  easing across 50vw beyond the reading pane before becoming transparent.
+  The desktop `[swap]` button mirrors the composition: content, backing and
+  reading fade switch left/right while the controls move to the opposite edge.
+  Right-side text, contacts, separators and portrait/caption align to the right;
+  swapping back restores left alignment, without reversing any characters.
+  The control row and its credit group reverse on the left so `ascii.rest`
+  stays in the outer corner, with native Tab order following the visible row.
+  A brief 140ms fade-out / 180ms fade-in softens the repositioning; the backing
+  crossfades without moving the scenery. Scroll position, focus, scene and pause
+  state are preserved, including rapid swaps. Reduced motion switches instantly.
+  The side is remembered locally and restored before the initial paint. On
+  narrow screens the button is hidden, content stays full-width and controls
+  stay bottom-right; the desktop preference remains saved.
 - All portfolio text and destinations remain semantic HTML. The background is
   decorative, inert and pointer-transparent. A server-rendered first frame and
   font fallback keep the page usable without JavaScript.
-- `[pause scene]` / `[play scene]` controls animation. Reduced-motion preferences
-  start the scene paused, and changes to that preference are respected.
-- The existing theme preference is retained as `[tone: cool]` / `[tone: warm]`:
-  both use light text on the same dark backing, with no scenery-obscuring ripple.
+- `[tone: cool]` and `[freeze]` / `[resume]` join the scene dropdown and credit
+  in one fixed bottom-edge line, with `[swap]` on desktop. The row mirrors when
+  it moves left, keeping the source link nearest the viewport corner.
+  All use the original
+  Ioskeley Mono size; there is no panel, border or button box. The scene name
+  takes only the space it needs, contracting on narrow screens instead of
+  wrapping the row. The opened native list retains the full names.
+  The reading pane has a short, feathered bottom fade (80–112px on desktop),
+  confined to the content side. The floating controls keep only their original
+  diffuse shadow, with no extra mask or fade behind them. The reading fade has
+  no tall black shelf and does not intercept clicks or scrolling.
+  Content reserves the reading fade's full height; narrow screens also account
+  for the control row so final lines and focused links remain readable.
+  Without JavaScript, interactive controls stay hidden and the static
+  `Alpine Dawn / ascii.rest` caption remains visible.
+- Reduced-motion preferences start the scene frozen, and changes to that
+  preference are respected. The existing theme preference is retained as
+  `[tone: cool]` / `[tone: warm]`: both use light text on the same dark backing,
+  with no scenery-obscuring ripple.
 - ASCII Rest's dividers piece generates the in-panel ornament. Only row 11 of its
   sample sheet is used, not the entire demonstration output. Its text receives
   an explicit Ioskeley Mono font override.
