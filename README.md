@@ -22,8 +22,10 @@ The preview server serves the built static site; rebuild after changing sources.
   The scene-name native dropdown offers all 15
   library scene presets, grouped into Nature, Places and Space. Choices are
   lazy-loaded and remembered locally, without resetting the pause state.
-  Scene changes use a gentle 1.2-second dissolve, with no zoom or black flash;
-  reduced motion switches immediately instead.
+  Scene changes use a 1.6-second pixel dissolve: random 4 × 4 ASCII-cell
+  tiles conceal the old scene, pause briefly on a dark grid, then reveal the
+  new live scene through the same grid. No opacity fade or prerecorded assets.
+  Reduced motion switches immediately instead.
   `Shuffle` chooses a new scene immediately and rotates every 30 seconds
   without repeating the current scene. Pause stops both animation and rotation.
   Rotation also waits while the tab is hidden, and the choice is remembered

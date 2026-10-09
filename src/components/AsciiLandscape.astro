@@ -34,11 +34,11 @@ const still = alpineDawn()(0);
     let rotationRequest = 0;
     let randomTimer: number | undefined;
     let previousFrame: HTMLCanvasElement | undefined;
-    let dissolve: Animation | undefined;
+    let paintFrame: number | undefined;
 
     function clearPreviousFrame() {
-        dissolve?.cancel();
-        dissolve = undefined;
+        if (paintFrame !== undefined) cancelAnimationFrame(paintFrame);
+        paintFrame = undefined;
         previousFrame?.remove();
         previousFrame = undefined;
     }
@@ -55,10 +55,9 @@ const still = alpineDawn()(0);
         const context = snapshot.getContext('2d');
         if (!context) return;
         context.drawImage(canvas, 0, 0);
-        // An interrupted dissolve starts from the currently visible blend,
-        // rather than flashing back to either of its two scenes.
+        // Flatten the exact visible mix of old imagery, dark tiles and
+        // revealed new imagery when a transition is interrupted.
         if (previousFrame) {
-            context.globalAlpha = Number(getComputedStyle(previousFrame).opacity);
             context.drawImage(previousFrame, 0, 0, snapshot.width, snapshot.height);
         }
         clearPreviousFrame();
@@ -67,26 +66,65 @@ const still = alpineDawn()(0);
         previousFrame = snapshot;
     }
 
+    function paintPixels(snapshot: HTMLCanvasElement) {
+        const context = snapshot.getContext('2d');
+        if (!context) {
+            clearPreviousFrame();
+            return;
+        }
+        // One chunky square is 4 × 4 ASCII cells. The reference dissolves
+        // imagery into dark tiles, then rebuilds the new image on that grid.
+        const columns = 50;
+        const rows = 25;
+        const tiles = Array.from({ length: columns * rows }, (_, index) => {
+            const x = index % columns;
+            const y = Math.floor(index / columns);
+            const left = Math.round(x * snapshot.width / columns);
+            const top = Math.round(y * snapshot.height / rows);
+            return {
+                left,
+                top,
+                width: Math.round((x + 1) * snapshot.width / columns) - left,
+                height: Math.round((y + 1) * snapshot.height / rows) - top,
+                concealAt: Math.random() * 550,
+                revealAt: 650 + Math.random() * 850,
+                phase: 0,
+            };
+        });
+        context.fillStyle = '#090c18';
+        let started: number | undefined;
+
+        const paint = (now: number) => {
+            if (previousFrame !== snapshot) return;
+            started ??= now;
+            const elapsed = now - started;
+            for (const tile of tiles) {
+                if (elapsed >= tile.revealAt && tile.phase !== 2) {
+                    // A transparent hole reveals the actual live ASCII scene.
+                    context.clearRect(tile.left, tile.top, tile.width, tile.height);
+                    tile.phase = 2;
+                } else if (elapsed >= tile.concealAt && tile.phase === 0) {
+                    context.fillRect(tile.left, tile.top, tile.width, tile.height);
+                    tile.phase = 1;
+                }
+            }
+            if (elapsed < 1600) paintFrame = requestAnimationFrame(paint);
+            else clearPreviousFrame();
+        };
+
+        paintFrame = requestAnimationFrame(paint);
+    }
+
     // mount() paints the first frame synchronously before this notification.
     // Keep the outgoing image fully visible until that new canvas is ready.
     const renderer = new MutationObserver(() => {
-        if (!previousFrame || dissolve ||
+        if (!previousFrame || paintFrame !== undefined ||
             scene?.querySelector('canvas')?.getAttribute('aria-label') !== currentScene.replaceAll('-', ' ')) return;
         if (reducedMotion.matches) {
             clearPreviousFrame();
             return;
         }
-        const snapshot = previousFrame;
-        dissolve = snapshot.animate([{ opacity: 1 }, { opacity: 0 }], {
-            duration: 1200,
-            easing: 'ease-in-out',
-            fill: 'forwards',
-        });
-        void dissolve.finished.then(() => {
-            if (previousFrame === snapshot) clearPreviousFrame();
-        }).catch(() => {
-            // A newer choice or reduced-motion change can cancel this dissolve.
-        });
+        paintPixels(previousFrame);
     });
 
     function updateCaption() {

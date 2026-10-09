@@ -167,8 +167,8 @@
     height: auto;
 }
 
-/* A single still of the outgoing scene dissolves over the new canvas. No
-   zoom, blur, bright flash or fade through black; removed after 1.2 seconds. */
+/* The outgoing still breaks into dark square tiles, then those tiles
+   reveal the live new scene. No opacity fade; removed when the grid clears. */
 .landscape-previous {
     position: absolute;
     inset: 0;
