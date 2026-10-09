@@ -23,12 +23,19 @@ The preview server serves the built static site; rebuild after changing sources.
   library scene presets, grouped into Nature, Places and Space. Choices are
   lazy-loaded and remembered locally, without resetting the pause state.
   Scene changes use a 1.6-second pixel dissolve: random 4 × 4 ASCII-cell
-  tiles conceal the old scene, pause briefly on a dark grid, then reveal the
-  new live scene through the same grid. No opacity fade or prerecorded assets.
+  tiles conceal the old scene character-by-character from each tile's center
+  outward in staggered 240ms bursts, pause briefly on a dark grid, then reveal
+  the new live scene character-by-character from each tile's center outward
+  in matching 240ms bursts. One shared canvas animation loop
+  batches character draws and skips missed steps on slow frames; there are no
+  per-character elements or timers. No opacity fade or prerecorded assets.
   Reduced motion switches immediately instead.
   `Shuffle` chooses a new scene immediately and rotates every 30 seconds
-  without repeating the current scene. Pause stops both animation and rotation.
-  Rotation also waits while the tab is hidden, and the choice is remembered
+  without repeating the current scene. Freeze holds the exact frame visible
+  when pressed, rather than restarting at frame one. The renderer pauses
+  offscreen behind that still, and ordinary resume continues its existing
+  animation clock. Pause also stops rotation; choosing a scene while frozen
+  shows its new still frame. Rotation waits while the tab is hidden, and the choice is remembered
   across visits.
   The floating scene caption doubles as the dropdown, alongside the
   `ascii.rest` source link, rather than duplicating the name elsewhere.

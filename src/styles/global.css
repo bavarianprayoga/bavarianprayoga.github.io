@@ -167,8 +167,13 @@
     height: auto;
 }
 
-/* The outgoing still breaks into dark square tiles, then those tiles
-   reveal the live new scene. No opacity fade; removed when the grid clears. */
+/* Keep the original canvas sized, but outside the viewport so the library's
+   IntersectionObserver stops its RAF. A still holds the exact clicked frame. */
+.landscape-live.landscape-paused {
+    transform: translateY(calc(-100vh - 100%));
+}
+
+.landscape-frozen,
 .landscape-previous {
     position: absolute;
     inset: 0;
@@ -176,6 +181,11 @@
     width: 100%;
     height: auto;
     pointer-events: none;
+}
+
+/* The pixel mask must stay above a frozen frame during scene changes. */
+.landscape-previous {
+    z-index: 2;
 }
 
 /* Backdrop only: content is fully opaque at rest and remains selectable.

@@ -34,6 +34,7 @@ const still = alpineDawn()(0);
     let rotationRequest = 0;
     let randomTimer: number | undefined;
     let previousFrame: HTMLCanvasElement | undefined;
+    let frozenFrame: HTMLCanvasElement | undefined;
     let paintFrame: number | undefined;
 
     function clearPreviousFrame() {
@@ -43,8 +44,26 @@ const still = alpineDawn()(0);
         previousFrame = undefined;
     }
 
-    function capturePreviousFrame() {
+    function freezeCurrentFrame() {
         const canvas = scene?.querySelector('canvas');
+        if (!canvas?.width || !canvas.height) return;
+        const snapshot = document.createElement('canvas');
+        snapshot.width = canvas.width;
+        snapshot.height = canvas.height;
+        const context = snapshot.getContext('2d');
+        if (!context) return;
+        context.drawImage(canvas, 0, 0);
+        snapshot.className = 'landscape-frozen';
+        frozenFrame?.remove();
+        scene?.after(snapshot);
+        frozenFrame = snapshot;
+        // Moving the original offscreen invokes the library's visibility
+        // pause without remounting it or resetting its animation clock.
+        scene?.classList.add('landscape-paused');
+    }
+
+    function capturePreviousFrame() {
+        const canvas = frozenFrame ?? scene?.querySelector('canvas');
         if (!canvas?.width || reducedMotion.matches) {
             clearPreviousFrame();
             return;
@@ -72,40 +91,88 @@ const still = alpineDawn()(0);
             clearPreviousFrame();
             return;
         }
-        // One chunky square is 4 × 4 ASCII cells. The reference dissolves
-        // imagery into dark tiles, then rebuilds the new image on that grid.
+        // Each 4 × 4 tile blacks out and reveals characters center-out.
+        // Share the order and rounded cell edges instead of running an
+        // animation or recomputing geometry for every character.
         const columns = 50;
         const rows = 25;
+        const tileSize = 4;
+        const burstDuration = 240;
+        const center = (tileSize - 1) / 2;
+        const characterOrder = Array.from({ length: tileSize * tileSize }, (_, index) => {
+            const x = index % tileSize;
+            const y = Math.floor(index / tileSize);
+            return { x, y, distance: (x - center) ** 2 + (y - center) ** 2 };
+        }).sort((a, b) => a.distance - b.distance);
+        const xEdges = Array.from({ length: columns * tileSize + 1 }, (_, x) =>
+            Math.round(x * snapshot.width / (columns * tileSize)));
+        const yEdges = Array.from({ length: rows * tileSize + 1 }, (_, y) =>
+            Math.round(y * snapshot.height / (rows * tileSize)));
         const tiles = Array.from({ length: columns * rows }, (_, index) => {
-            const x = index % columns;
-            const y = Math.floor(index / columns);
-            const left = Math.round(x * snapshot.width / columns);
-            const top = Math.round(y * snapshot.height / rows);
+            const column = (index % columns) * tileSize;
+            const row = Math.floor(index / columns) * tileSize;
+            const left = xEdges[column];
+            const top = yEdges[row];
             return {
+                column,
+                row,
                 left,
                 top,
-                width: Math.round((x + 1) * snapshot.width / columns) - left,
-                height: Math.round((y + 1) * snapshot.height / rows) - top,
-                concealAt: Math.random() * 550,
-                revealAt: 650 + Math.random() * 850,
-                phase: 0,
+                width: xEdges[column + tileSize] - left,
+                height: yEdges[row + tileSize] - top,
+                // Finish concealing by 550ms and revealing by 1500ms,
+                // preserving the dark beat and total 1.6-second duration.
+                concealAt: Math.random() * (550 - burstDuration),
+                revealAt: 650 + Math.random() * (850 - burstDuration),
+                concealed: 0,
+                revealed: 0,
             };
         });
         context.fillStyle = '#090c18';
         let started: number | undefined;
 
-        const paint = (now: number) => {
+        const paint = () => {
             if (previousFrame !== snapshot) return;
+            // RAF's frame timestamp can precede a costly ASCII redraw in
+            // another callback. Start the burst when this callback runs.
+            const now = performance.now();
             started ??= now;
             const elapsed = now - started;
             for (const tile of tiles) {
-                if (elapsed >= tile.revealAt && tile.phase !== 2) {
-                    // A transparent hole reveals the actual live ASCII scene.
-                    context.clearRect(tile.left, tile.top, tile.width, tile.height);
-                    tile.phase = 2;
-                } else if (elapsed >= tile.concealAt && tile.phase === 0) {
+                if (tile.revealed === characterOrder.length) continue;
+                if (elapsed >= tile.revealAt) {
+                    const progress = (elapsed - tile.revealAt) / burstDuration;
+                    if (progress >= 1) {
+                        // Skip missed reveal steps on slow/hidden frames too.
+                        context.clearRect(tile.left, tile.top, tile.width, tile.height);
+                        tile.revealed = characterOrder.length;
+                        continue;
+                    }
+                    const count = Math.floor(progress * characterOrder.length);
+                    while (tile.revealed < count) {
+                        const character = characterOrder[tile.revealed++];
+                        const x = tile.column + character.x;
+                        const y = tile.row + character.y;
+                        // Reveal the live new scene one whole ASCII cell at a time.
+                        context.clearRect(xEdges[x], yEdges[y], xEdges[x + 1] - xEdges[x], yEdges[y + 1] - yEdges[y]);
+                    }
+                    continue;
+                }
+                if (elapsed < tile.concealAt || tile.concealed === characterOrder.length) continue;
+                const progress = (elapsed - tile.concealAt) / burstDuration;
+                if (progress >= 1) {
+                    // Catch up in one draw if a slow/hidden frame skips the
+                    // burst, rather than replaying missed character steps.
                     context.fillRect(tile.left, tile.top, tile.width, tile.height);
-                    tile.phase = 1;
+                    tile.concealed = characterOrder.length;
+                    continue;
+                }
+                const count = Math.floor(progress * characterOrder.length);
+                while (tile.concealed < count) {
+                    const character = characterOrder[tile.concealed++];
+                    const x = tile.column + character.x;
+                    const y = tile.row + character.y;
+                    context.fillRect(xEdges[x], yEdges[y], xEdges[x + 1] - xEdges[x], yEdges[y + 1] - yEdges[y]);
                 }
             }
             if (elapsed < 1600) paintFrame = requestAnimationFrame(paint);
@@ -118,6 +185,9 @@ const still = alpineDawn()(0);
     // mount() paints the first frame synchronously before this notification.
     // Keep the outgoing image fully visible until that new canvas is ready.
     const renderer = new MutationObserver(() => {
+        // Choosing a different scene while frozen displays its new still
+        // frame, while the original renderer stays paused offscreen.
+        if (paused) freezeCurrentFrame();
         if (!previousFrame || paintFrame !== undefined ||
             scene?.querySelector('canvas')?.getAttribute('aria-label') !== currentScene.replaceAll('-', ' ')) return;
         if (reducedMotion.matches) {
@@ -213,10 +283,19 @@ const still = alpineDawn()(0);
     }
 
     function updateScene() {
-        // Explicit play can opt into motion; a later system preference change
-        // resets that choice. The library also pauses RAF in hidden documents.
-        scene?.setAttribute('options', JSON.stringify({ motion: !paused }));
-        scene?.setAttribute('fps', paused ? '0' : '12');
+        if (paused) {
+            freezeCurrentFrame();
+        } else {
+            scene?.classList.remove('landscape-paused');
+            frozenFrame?.remove();
+            frozenFrame = undefined;
+            // Only an explicit play under reduced motion needs an override.
+            // Normal pause/resume must not change observed attributes: each
+            // options/fps change would replace the canvas and start at t=0.
+            if (reducedMotion.matches && scene?.getAttribute('options') !== '{"motion":true}') {
+                scene?.setAttribute('options', '{"motion":true}');
+            }
+        }
         toggle?.setAttribute('aria-pressed', String(paused));
         toggle?.setAttribute('aria-label', paused ? 'Play landscape animation' : 'Pause landscape animation');
         if (toggle) toggle.textContent = paused ? '[resume]' : '[freeze]';
@@ -226,10 +305,9 @@ const still = alpineDawn()(0);
         renderer.observe(scene, { childList: true });
         // Leave the animation control hidden if the library script never loads.
         customElements.whenDefined('ascii-art').then(() => {
-            // Don't override the library's own reduced-motion handling on load.
-            toggle.setAttribute('aria-pressed', String(paused));
-            toggle.setAttribute('aria-label', paused ? 'Play landscape animation' : 'Pause landscape animation');
-            toggle.textContent = paused ? '[resume]' : '[freeze]';
+            // The observer captures the first frame if it isn't ready yet.
+            // Leave the library's reduced-motion handling intact on load.
+            updateScene();
             toggle.hidden = false;
             if (choice instanceof HTMLSelectElement && picker) {
                 picker.hidden = false;
