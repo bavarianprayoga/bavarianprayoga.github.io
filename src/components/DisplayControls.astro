@@ -109,15 +109,26 @@ const sceneGroups = [
         sideAnimations = [];
     }
 
-    function fadeSideTo(opacity: number, duration: number) {
-        // Start from the visible opacity if another click interrupts a fade,
-        // rather than flashing back to fully opaque text between requests.
-        const starts = surfaces.map((element) => getComputedStyle(element).opacity);
+    function offscreenOffsets() {
+        const direction = root.dataset.contentSide === 'right' ? 1 : -1;
+        const fadeWidth = edge ? parseFloat(getComputedStyle(edge, '::before').width) || 0 : 0;
+        // Clear the reading feather, focus rings and diffuse control shadow too.
+        // Layout widths/insets exclude any in-progress translation.
+        const contentDistance = Math.max(pane?.offsetWidth ?? 0, fadeWidth) + 64;
+        const inset = controls ? parseFloat(getComputedStyle(controls)[direction === 1 ? 'left' : 'right']) || 0 : 0;
+        const controlDistance = (controls?.offsetWidth ?? 0) + inset + 64;
+        return surfaces.map((element) => element === controls ? -direction * controlDistance : direction * contentDistance);
+    }
+
+    function slideSideTo(offsets: number[], duration: number, easing: string, from?: string[]) {
+        // Resume from the currently visible transforms on interruption. On
+        // relocation, supply the new offscreen starts before the next paint.
+        const starts = from ?? surfaces.map((element) => getComputedStyle(element).transform);
         clearSideAnimations();
         surfaces.forEach((element, index) => {
             sideAnimations.push(element.animate(
-                [{ opacity: starts[index] }, { opacity }],
-                { duration, easing: 'ease-in-out', fill: 'forwards' },
+                [{ transform: starts[index] }, { transform: `translateX(${offsets[index]}px)` }],
+                { duration, easing, fill: 'forwards' },
             ));
         });
         return Promise.all(sideAnimations.map((animation) => animation.finished));
@@ -141,12 +152,17 @@ const sceneGroups = [
 
         root.setAttribute('data-side-switching', '');
         try {
-            await fadeSideTo(0, 140);
-            if (request !== sideRequest) return;
-            // Reuse the live scene/content nodes; keep scrollTop and focus.
-            // Only the control nodes reorder to follow their mirrored layout.
-            applySide();
-            await fadeSideTo(1, 180);
+            let entering: string[] | undefined;
+            if (desiredSide !== root.dataset.contentSide) {
+                await slideSideTo(offscreenOffsets(), 240, 'cubic-bezier(0.4, 0, 1, 1)');
+                if (request !== sideRequest) return;
+                // Relocate/reorder the same nodes only while fully offscreen.
+                // Preserve the live scene, pane scrollTop and focused control.
+                applySide();
+                entering = offscreenOffsets().map((offset) => `translateX(${offset}px)`);
+            }
+            // A quick second click reverses back to the current edge smoothly.
+            await slideSideTo(surfaces.map(() => 0), 320, 'cubic-bezier(0, 0, 0.2, 1)', entering);
         } catch {
             if (request === sideRequest) applySide();
         } finally {
@@ -172,6 +188,10 @@ const sceneGroups = [
         updateSideVisibility();
     });
     reducedMotion.addEventListener('change', settleSide);
+    window.addEventListener('resize', () => {
+        // Old viewport distances are no longer valid, even within desktop.
+        if (root.hasAttribute('data-side-switching')) settleSide();
+    });
 
     function updateTone() {
         const warm = document.documentElement.getAttribute('data-theme') === 'light';

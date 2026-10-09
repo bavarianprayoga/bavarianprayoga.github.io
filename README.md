@@ -34,16 +34,22 @@ The preview server serves the built static site; rebuild after changing sources.
 - Desktop uses one independently scrolling, 35vw reading pane; narrow screens
   use normal page scrolling. Scrollbar tracks are hidden without disabling
   scrolling. A separate black backdrop stays translucent (70% on desktop),
-  easing across 50vw beyond the reading pane before becoming transparent.
+  easing across 20vw beyond the reading pane before becoming transparent at
+  55% across the viewport from its content-side edge. This shorter transition
+  leaves more scenery unobscured, without narrowing the reading pane or its
+  unchanged bottom fade.
   The desktop `[swap]` button mirrors the composition: content, backing and
   reading fade switch left/right while the controls move to the opposite edge.
   Right-side text, contacts, separators and portrait/caption align to the right;
   swapping back restores left alignment, without reversing any characters.
   The control row and its credit group reverse on the left so `ascii.rest`
   stays in the outer corner, with native Tab order following the visible row.
-  A brief 140ms fade-out / 180ms fade-in softens the repositioning; the backing
-  crossfades without moving the scenery. Scroll position, focus, scene and pause
-  state are preserved, including rapid swaps. Reduced motion switches instantly.
+  Content and controls slide off their current viewport edges (240ms), relocate
+  while fully outside, then slide back in from the opposite edges (320ms).
+  They stay opaque, with no cross-screen sweep or bounce; the reading feather
+  follows the content, while the backing crossfades without moving the scenery.
+  Scroll position, focus, scene and pause state are preserved, including rapid
+  reversals. Resizing settles the new layout; reduced motion switches instantly.
   The side is remembered locally and restored before the initial paint. On
   narrow screens the button is hidden, content stays full-width and controls
   stay bottom-right; the desktop preference remains saved.
@@ -67,8 +73,10 @@ The preview server serves the built static site; rebuild after changing sources.
   `Alpine Dawn / ascii.rest` caption remains visible.
 - Reduced-motion preferences start the scene frozen, and changes to that
   preference are respected. The existing theme preference is retained as
-  `[tone: cool]` / `[tone: warm]`: both use light text on the same dark backing,
-  with no scenery-obscuring ripple.
+  `[tone: cool]` / `[tone: warm]`: cool white gradually eases into warm yellow
+  over 650ms (and back again), including links, separators and text controls.
+  Both use light text on the same dark backing, with no scenery-obscuring ripple.
+  Saved tones render directly on load; reduced-motion tone changes are instant.
 - ASCII Rest's dividers piece generates the in-panel ornament. Only row 11 of its
   sample sheet is used, not the entire demonstration output. Its text receives
   an explicit Ioskeley Mono font override.

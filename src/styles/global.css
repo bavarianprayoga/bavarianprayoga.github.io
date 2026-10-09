@@ -22,6 +22,7 @@
     --muted-color: #bec5d6;
     --accent-color: #c6d8e5;
     --panel-width: 35vw;
+    --backdrop-feather: 20vw;
     --scene-width: max(100vw, 200dvh);
     --controls-inset: clamp(0.75rem, 1.5vw, 1.5rem);
     --controls-left: max(var(--controls-inset), env(safe-area-inset-left, 0px));
@@ -40,6 +41,18 @@
     --font-color: #fff5e3;
     --muted-color: #d4c4b4;
     --accent-color: #f2c8a7;
+}
+
+/* Animate only the elements that own a color. Headings and paragraphs inherit
+   the body's interpolated color, avoiding nested/delayed color transitions.
+   Neither the scenery nor the translucent backing changes with the tone. */
+@media (prefers-reduced-motion: no-preference) {
+    body, a, button,
+    .eyebrow, .landscape-credit,
+    .scene-select select, .scene-select option, .scene-select optgroup,
+    .scene-feedback, .ascii-decoration, .portrait figcaption {
+        transition: color 650ms ease-in-out, text-decoration-color 650ms ease-in-out;
+    }
 }
 
 @layer base {
@@ -182,12 +195,12 @@
         to right,
         rgb(0 0 0 / 70%) 0%,
         rgb(0 0 0 / 70%) var(--panel-width),
-        rgb(0 0 0 / 67%) calc(var(--panel-width) + 6.25vw),
-        rgb(0 0 0 / 60%) calc(var(--panel-width) + 12.5vw),
-        rgb(0 0 0 / 35%) calc(var(--panel-width) + 25vw),
-        rgb(0 0 0 / 10%) calc(var(--panel-width) + 37.5vw),
-        rgb(0 0 0 / 3%) calc(var(--panel-width) + 43.75vw),
-        transparent calc(var(--panel-width) + 50vw)
+        rgb(0 0 0 / 67%) calc(var(--panel-width) + var(--backdrop-feather) * 0.125),
+        rgb(0 0 0 / 60%) calc(var(--panel-width) + var(--backdrop-feather) * 0.25),
+        rgb(0 0 0 / 35%) calc(var(--panel-width) + var(--backdrop-feather) * 0.5),
+        rgb(0 0 0 / 10%) calc(var(--panel-width) + var(--backdrop-feather) * 0.75),
+        rgb(0 0 0 / 3%) calc(var(--panel-width) + var(--backdrop-feather) * 0.875),
+        transparent calc(var(--panel-width) + var(--backdrop-feather))
     );
 }
 
@@ -482,6 +495,12 @@ ascii-art > pre, .ascii-decoration {
 /* Mirror desktop placement/alignment, not the characters or the landscape.
    Reuse the nodes to preserve focus, scrolling and scene state. */
 @media (min-width: 1024px) {
+    /* Moving fixed controls must not pan the page or create a second scroller.
+       Clip forbids programmatic viewport scrolling as well as visible tracks. */
+    html {
+        overflow: clip;
+    }
+
     [data-content-side="right"] .portfolio-pane {
         margin-left: calc(100vw - var(--panel-width));
         text-align: right;
@@ -529,6 +548,12 @@ ascii-art > pre, .ascii-decoration {
 }
 
 @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    [data-side-switching] .portfolio-pane,
+    [data-side-switching] .portfolio-controls,
+    [data-side-switching] .content-edge-fade {
+        will-change: transform;
+    }
+
     [data-side-switching] .content-backdrop::before,
     [data-side-switching] .content-backdrop::after {
         transition: opacity 180ms ease-in-out;
