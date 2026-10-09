@@ -1,0 +1,213 @@
+---
+// The form-controls piece is a visual demo, so this floating text row keeps a
+// real keyboard/touch select with the full-scene presets in our pinned release.
+const sceneGroups = [
+    {
+        label: 'Nature',
+        pieces: [
+            ['alpine-dawn', 'Alpine Dawn'],
+            ['aurora-fjord', 'Aurora Fjord'],
+            ['deep-reef', 'Deep Reef'],
+            ['desert-night', 'Desert Night'],
+            ['lantern-lake', 'Lantern Lake'],
+            ['misty-forest', 'Misty Forest'],
+            ['night-coast', 'Night Coast'],
+            ['ocean-sunset', 'Ocean Sunset'],
+            ['storm-plains', 'Storm Plains'],
+        ],
+    },
+    {
+        label: 'Places',
+        pieces: [
+            ['kyoto-dusk', 'Kyoto Dusk'],
+            ['marine-drive', 'Marine Drive'],
+            ['taj-dawn', 'Taj Dawn'],
+            ['tokyo-rain', 'Tokyo Rain'],
+            ['varanasi-ghats', 'Varanasi Ghats'],
+        ],
+    },
+    { label: 'Space', pieces: [['earthrise', 'Earthrise']] },
+] as const;
+---
+
+<aside id="display-controls" class="portfolio-controls" aria-label="Landscape and display controls">
+    <button id="side-toggle" type="button" aria-label="Move portfolio to the right" aria-controls="page-content" hidden>[swap]</button>
+    <button id="theme-toggle" type="button" aria-label="Use warm text colors" aria-pressed="false" hidden>[tone: cool]</button>
+    <button id="scene-toggle" type="button" aria-label="Pause landscape animation" aria-pressed="false" hidden>[freeze]</button>
+    <div class="landscape-credit">
+        <div id="scene-picker" class="scene-picker" hidden>
+            <label for="scene-choice" class="sr-only">Landscape scene</label>
+            <span class="scene-select">
+                <select id="scene-choice" aria-label="Landscape scene">
+                    {sceneGroups.map(({ label, pieces }) => (
+                        <optgroup label={label}>
+                            {pieces.map(([value, name]) => <option value={value}>{name}</option>)}
+                        </optgroup>
+                    ))}
+                    <option value="random">Shuffle</option>
+                </select>
+                <span class="scene-select-arrow" aria-hidden="true">v</span>
+            </span>
+        </div>
+        <span id="scene-name">Alpine Dawn</span>
+        <span aria-hidden="true">/</span>
+        <a href="https://ascii.rest/" target="_blank" rel="noopener noreferrer">ascii.rest</a>
+    </div>
+    <p id="scene-feedback" class="scene-feedback" role="status"></p>
+</aside>
+
+<script>
+    const controls = document.getElementById('display-controls');
+    const toggle = document.getElementById('theme-toggle');
+    const feedback = document.getElementById('scene-feedback');
+    const sideToggle = document.getElementById('side-toggle');
+    const credit = controls?.querySelector<HTMLElement>('.landscape-credit');
+    const controlItems = Array.from(controls?.children ?? []).filter((element) => element !== feedback);
+    const creditItems = Array.from(credit?.children ?? []);
+    const pane = document.querySelector<HTMLElement>('.portfolio-pane');
+    const edge = document.querySelector<HTMLElement>('.content-edge-fade');
+    const root = document.documentElement;
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const surfaces = [pane, controls, edge].filter((element): element is HTMLElement => element instanceof HTMLElement);
+    let desiredSide = root.dataset.contentSide === 'right' ? 'right' : 'left';
+    let sideRequest = 0;
+    let sideAnimations: Animation[] = [];
+
+    function orderControls() {
+        if (!controls || !credit) return;
+        const mirrored = desktop.matches && desiredSide === 'right';
+        const order = mirrored ? 'reference-first' : 'buttons-first';
+        if (controls.dataset.order === order) return;
+
+        // Move the existing nodes, not just their CSS order: native Tab follows
+        // the visible row, with the source link at its outer corner. Reparenting
+        // can blur a focused control, so restore it without scrolling the page.
+        const focused = document.activeElement;
+        controls.append(...(mirrored ? [...controlItems].reverse() : controlItems));
+        if (feedback) controls.append(feedback);
+        credit.append(...(mirrored ? [...creditItems].reverse() : creditItems));
+        controls.dataset.order = order;
+        if (focused instanceof HTMLElement && controls.contains(focused)) focused.focus({ preventScroll: true });
+    }
+
+    function applySide() {
+        root.dataset.contentSide = desiredSide;
+        const label = `Move portfolio to the ${desiredSide === 'right' ? 'left' : 'right'}`;
+        sideToggle?.setAttribute('aria-label', label);
+        sideToggle?.setAttribute('title', label);
+        orderControls();
+        try {
+            localStorage.setItem('portfolio-side', desiredSide);
+        } catch {
+            // Layout switching also works when storage is unavailable.
+        }
+    }
+
+    function clearSideAnimations() {
+        sideAnimations.forEach((animation) => animation.cancel());
+        sideAnimations = [];
+    }
+
+    function fadeSideTo(opacity: number, duration: number) {
+        // Start from the visible opacity if another click interrupts a fade,
+        // rather than flashing back to fully opaque text between requests.
+        const starts = surfaces.map((element) => getComputedStyle(element).opacity);
+        clearSideAnimations();
+        surfaces.forEach((element, index) => {
+            sideAnimations.push(element.animate(
+                [{ opacity: starts[index] }, { opacity }],
+                { duration, easing: 'ease-in-out', fill: 'forwards' },
+            ));
+        });
+        return Promise.all(sideAnimations.map((animation) => animation.finished));
+    }
+
+    function settleSide() {
+        ++sideRequest;
+        clearSideAnimations();
+        root.removeAttribute('data-side-switching');
+        applySide();
+    }
+
+    async function swapSide() {
+        desiredSide = desiredSide === 'left' ? 'right' : 'left';
+        const request = ++sideRequest;
+        if (!desktop.matches || reducedMotion.matches ||
+            !surfaces.every((element) => typeof element.animate === 'function')) {
+            settleSide();
+            return;
+        }
+
+        root.setAttribute('data-side-switching', '');
+        try {
+            await fadeSideTo(0, 140);
+            if (request !== sideRequest) return;
+            // Reuse the live scene/content nodes; keep scrollTop and focus.
+            // Only the control nodes reorder to follow their mirrored layout.
+            applySide();
+            await fadeSideTo(1, 180);
+        } catch {
+            if (request === sideRequest) applySide();
+        } finally {
+            if (request === sideRequest) {
+                clearSideAnimations();
+                root.removeAttribute('data-side-switching');
+            }
+        }
+    }
+
+    function updateSideVisibility() {
+        if (sideToggle) {
+            if (!desktop.matches && document.activeElement === sideToggle) toggle?.focus({ preventScroll: true });
+            sideToggle.hidden = !desktop.matches || !pane;
+        }
+    }
+
+    applySide();
+    updateSideVisibility();
+    sideToggle?.addEventListener('click', () => void swapSide());
+    desktop.addEventListener('change', () => {
+        settleSide();
+        updateSideVisibility();
+    });
+    reducedMotion.addEventListener('change', settleSide);
+
+    function updateTone() {
+        const warm = document.documentElement.getAttribute('data-theme') === 'light';
+        toggle?.setAttribute('aria-pressed', String(warm));
+        toggle?.setAttribute('aria-label', warm ? 'Use cool text colors' : 'Use warm text colors');
+        if (toggle) toggle.textContent = warm ? '[tone: warm]' : '[tone: cool]';
+    }
+
+    toggle?.addEventListener('click', () => {
+        const warm = document.documentElement.getAttribute('data-theme') === 'light';
+        const theme = warm ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        try {
+            localStorage.setItem('theme', theme);
+        } catch {
+            // The control still works when storage is unavailable.
+        }
+        updateTone();
+    });
+
+    updateTone();
+    if (controls && toggle) {
+        toggle.hidden = false;
+        controls.hidden = false;
+        // Leave a small gap above the row for the final content/focused links.
+        // Feedback sits above it, rather than pushing controls onto a new line.
+        const reserveSpace = () => {
+            const feedbackHeight = feedback?.getBoundingClientRect().height ?? 0;
+            const box = controls.getBoundingClientRect();
+            const height = box.height + feedbackHeight + (feedbackHeight ? 6 : 0);
+            document.documentElement.style.setProperty('--controls-clearance',
+                `calc(${height}px + var(--controls-bottom) + 1.5rem)`);
+        };
+        reserveSpace();
+        const size = new ResizeObserver(reserveSpace);
+        size.observe(controls);
+        if (feedback) size.observe(feedback);
+    }
+</script>
