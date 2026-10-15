@@ -475,6 +475,10 @@ ascii-art > pre, .ascii-decoration {
     overflow-wrap: break-word;
 }
 
+.work p + p {
+    margin-top: 0.875rem;
+}
+
 .portrait {
     margin: 0;
 }
